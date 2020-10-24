@@ -169,7 +169,7 @@ def get_requests(request):
         statuses = RequestLog.RequestStatus.values
 
     all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
-        order_by('request_id', 'created_at').distinct('request')
+        order_by('request_id', '-created_at').distinct('request')
     postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
     request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
         select_related('request', 'request__user')

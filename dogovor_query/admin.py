@@ -9,7 +9,7 @@ class CustomSpecialistAdmin(UserAdmin):
     add_form = CustomSpecialistCreationForm
     form = CustomSpecialistChangeForm
     model = Specialist
-    list_display = ['username', 'email', 'is_staff']
+    list_display = UserAdmin.list_display + ('table_number', )
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('table_number',)}),
     )

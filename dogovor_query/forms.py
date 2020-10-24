@@ -34,7 +34,11 @@ class RequestFormUser(forms.Form):
 
     def clean_fio(self):
         fio = self.cleaned_data['fio']
-        if len(fio.split(' ')) < 2:
+        splitted_fio = fio.split(' ')
+        for word in splitted_fio:
+            if not word.isalpha():
+                raise ValidationError('Некорретное ФИО')
+        if len(splitted_fio) < 2:
             raise ValidationError('Некорретное ФИО')
         return fio
 

@@ -279,7 +279,7 @@ $(document).ready(function () {
                 action: function (e, dt, node, config) {
                     if ($(node).text().endsWith('отложенные заявки')) {
                         dt.ajax.url('api/requests/get?status=postponed').load()
-                        $(node).attr("aria-pressed", "true")
+                        $(node).text('Вернуться к активным заявкам')
                     } else if ($(node).text().endsWith('активным заявкам')) {
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')

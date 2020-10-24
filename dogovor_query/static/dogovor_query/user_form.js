@@ -95,7 +95,8 @@ $(document).ready(function () {
                 span_user_status.addClass('badge badge-danger')
                 div_card_welcome.hide()
                 div_card_people_before.hide()
-                $('#card_cancel_request').hide()
+                div_card_cancel_request.hide()
+                div_card_new_request.show()
             }
         })
     })

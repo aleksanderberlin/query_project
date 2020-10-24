@@ -9,12 +9,10 @@ class CustomSpecialistAdmin(UserAdmin):
     add_form = CustomSpecialistCreationForm
     form = CustomSpecialistChangeForm
     model = Specialist
-    list_display = ['username', 'email','is_staff', 'bio']
-    fieldsets = (
-        (('User'), {'fields': ('username', 'email', 'is_staff', 'bio')}),
-        (('Permissions'), {'fields': ('is_active', 'is_staff')}),
+    list_display = ['username', 'email', 'is_staff', 'bio']
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('table_number',)}),
     )
-
 
 
 # Register your models here.

@@ -279,11 +279,12 @@ $(document).ready(function () {
                 action: function (e, dt, node, config) {
                     if ($(node).text().endsWith('отложенные заявки')) {
                         dt.ajax.url('api/requests/get?status=postponed').load()
+                        $(node).attr("aria-pressed", "true")
                         $(node).text('Вернуться к активным заявкам')
-                        // $(node).prepend("<span id=\"created_amount\" class=\"badge badge-light\"></span>")
                     } else if ($(node).text().endsWith('активным заявкам')) {
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')
+                        $(node).attr("aria-pressed", "false")
                         $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")
                     }
                 }

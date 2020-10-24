@@ -1,4 +1,6 @@
 from django import forms
+import datetime
+from django.core.exceptions import ValidationError
 
 
 class LoginForm(forms.Form):
@@ -23,6 +25,13 @@ class RequestFormUser(forms.Form):
     type = forms.ChoiceField(choices=CHOICES, label='Тип обращения', widget=forms.Select(attrs={
         'class': 'form-control'}))
     user_uid = forms.CharField(max_length=40, widget=forms.HiddenInput())
+
+    def clean_birthday(self):
+        value = datetime.datetime.strptime(self.cleaned_data['birthday'], '%d.%m.%Y')
+        if (datetime.datetime.now() - value).days < 3650:
+            raise ValidationError('Некорретная дата рождения')
+        return value
+
 
 
 class RequestFormSubjectHostel(forms.Form):

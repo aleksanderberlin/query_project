@@ -98,7 +98,40 @@ $(document).ready(function () {
                         data: {
                             'status': 'activated'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 5000,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже активирована, возможно, другим специалистом.',
+                                    delay: 5000,
+                                });
+                                dt.rows('.selected').remove().draw(false);
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно активирована, человек приглашен в кабинет.',
+                                delay: 5000,
+                            });
                             request_id.val(data[0]['pk'])
                             request_status.val('activated')
                             request_current_status_created_at.val(data[0]['created_at'])
@@ -144,24 +177,30 @@ $(document).ready(function () {
                                     delay: 5000,
                                 });
                             },
-                            403: function() {
+                            403: function () {
                                 $.toast({
                                     type: 'error',
                                     title: 'Ошибка',
-                                    content: 'Заявка уже закрыта',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
                                     delay: 5000,
                                 });
                             },
-                            409: function() {
+                            409: function () {
                                 $.toast({
                                     type: 'error',
                                     title: 'Ошибка',
-                                    content: 'Заявка уже находится в данном статусе',
+                                    content: 'Заявка уже в работе. Обновите страницу.',
                                     delay: 5000,
                                 });
                             }
                         },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Работа по заявке успешно начата.',
+                                delay: 5000,
+                            });
                             request_status.val('processing')
                             request_current_status_created_at.val(response.changed_at)
                             span_status_text.removeClass()
@@ -196,7 +235,39 @@ $(document).ready(function () {
                         data: {
                             'status': 'cancelled'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 5000,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже отменена. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно отменена.',
+                                delay: 5000,
+                            });
                             if (request_id.val().length === 0) {
                                 dt.rows('.selected').remove().draw(false);
                             }
@@ -236,7 +307,39 @@ $(document).ready(function () {
                         data: {
                             'status': 'postponed'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 5000,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже отложена. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно перемещена в отложенные. Для повторного вызова нажмите кнопку "Показать отложенные заявки"',
+                                delay: 5000,
+                            });
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -273,7 +376,39 @@ $(document).ready(function () {
                         data: {
                             'status': 'closed'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 5000,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже завершена. Обновите страницу.',
+                                    delay: 5000,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно обработана и закрыта.',
+                                delay: 5000,
+                            });
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')

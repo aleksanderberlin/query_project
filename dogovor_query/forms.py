@@ -27,10 +27,16 @@ class RequestFormUser(forms.Form):
     user_uid = forms.CharField(max_length=40, widget=forms.HiddenInput())
 
     def clean_birthday(self):
-        value = self.cleaned_data['birthday']
-        if (datetime.datetime.now() - datetime.datetime.combine(value, datetime.datetime.min.time())).days < 3650:
+        birthday = self.cleaned_data['birthday']
+        if (datetime.datetime.now() - datetime.datetime.combine(birthday, datetime.datetime.min.time())).days < 3650:
             raise ValidationError('Некорретная дата рождения')
-        return value
+        return birthday
+
+    def clean_fio(self):
+        fio = self.cleaned_data['fio']
+        if len(fio.split(' ')) < 2:
+            raise ValidationError('Некорретное ФИО')
+        return fio
 
 
 class RequestFormSubjectHostel(forms.Form):

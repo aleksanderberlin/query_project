@@ -26,7 +26,6 @@
     <form action="" method="post">
         {% csrf_token %}
         {{ wizard.management_form }}
-        {#        {{ wizard.form.errors }}#}
         {% if wizard.form.errors %}
             {% for field in wizard.form %}
                 {% for error in field.errors %}

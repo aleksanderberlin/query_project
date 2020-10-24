@@ -1,0 +1,52 @@
+{% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
+{% block wizard_form %}
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_university_subject-question">{{ wizard.form.question.label }}</label>
+        </div>
+        <div class="card-body">
+            {% for choice in wizard.form.question.field.choices %}
+                {% if choice.0 == 'Другое' %}
+                    <div class="form-check m-1">
+                        <div class="form-row">
+                            <div class="col-2">
+                                <div class="pretty p-bigger p-icon p-curve p-pulse">
+                                    <input type="radio" class="form-check-input" name="university_subject-question"
+                                           id="id_university_subject-question_{{ forloop.counter0 }}"
+                                           value="{{ choice.0 }}">
+                                    <div class="state p-warning">
+                                        <i class="icon mdi mdi-check"></i>
+                                        <label class="form-check-label"
+                                               for="id_university_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}:</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                {{ wizard.form.other_text }}
+{#                                <input class="form-control form-control-sm" type="text" name="other_choice"#}
+{#                                       id="other_input" readonly>#}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-check m-1">
+                        <div class="form-row">
+                            <div class="col">
+                                <div class="pretty p-bigger p-icon p-curve p-pulse">
+                                    <input type="radio" class="form-check-input" name="university_subject-question"
+                                           id="id_university_subject-question_{{ forloop.counter0 }}"
+                                           value="{{ choice.0 }}">
+                                    <div class="state p-warning">
+                                        <i class="icon mdi mdi-check"></i>
+                                        <label class="form-check-label"
+                                               for="id_university_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

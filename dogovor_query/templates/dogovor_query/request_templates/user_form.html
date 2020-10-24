@@ -1,0 +1,44 @@
+{% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
+{% block wizard_form %}
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_user-fio">{{ wizard.form.fio.label }}</label>
+        </div>
+        <div class="card-body">
+            <div class="form-group row m-2">
+                {{ wizard.form.fio }}
+            </div>
+        </div>
+    </div>
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_user-birthday">{{ wizard.form.birthday.label }}</label>
+        </div>
+        <div class="card-body">
+            <div class="form-group row m-2">
+                {{ wizard.form.birthday }}
+            </div>
+        </div>
+    </div>
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_user-phone_number">{{ wizard.form.phone_number.label }}</label>
+        </div>
+        <div class="card-body">
+            <div class="form-group row m-2">
+                {{ wizard.form.phone_number }}
+            </div>
+        </div>
+    </div>
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_user-type">{{ wizard.form.type.label }}</label>
+        </div>
+        <div class="card-body">
+            <div class="form-group row m-2">
+                {{ wizard.form.type }}
+            </div>
+            {{ wizard.form.user_uid }}
+        </div>
+    </div>
+{% endblock %}

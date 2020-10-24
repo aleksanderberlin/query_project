@@ -1,0 +1,323 @@
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required, permission_required
+from formtools.wizard.views import SessionWizardView
+from .forms import *
+from .models import *
+from django.contrib.auth import authenticate, login, logout
+import uuid
+import datetime
+from django.utils import timezone
+import json
+
+FORMS = [('user', RequestFormUser),
+         ('university_subject', RequestFormSubjectUniversity),
+         ('hostel_subject', RequestFormSubjectHostel),
+         ('hostel_subject_move', RequestFormSubjectHostelMove)]
+
+TEMPLATES = {'user': 'dogovor_query/request_templates/user_form.html',
+             'university_subject': 'dogovor_query/request_templates/university_form_subject.html',
+             'hostel_subject': 'dogovor_query/request_templates/hostel_form_subject.html',
+             'hostel_subject_move': 'dogovor_query/request_templates/hostel_form_move.html'}
+
+
+def split_fio(fio):
+    splitted_fio = fio.split(' ')
+    if len(splitted_fio) > 2:
+        second_name = ' '.join(splitted_fio[2:])
+    else:
+        second_name = None
+    return {'last_name': splitted_fio[0], 'first_name': splitted_fio[1], 'second_name': second_name}
+
+
+def specialist_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(username=cd['username'], password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    if 'next' in request.GET:
+                        return redirect(request.GET['next'])
+                    else:
+                        return redirect('query_list')
+                else:
+                    form = LoginForm(request.POST)
+                    return render(request, 'dogovor_query/login.html', {'form': form})
+            else:
+                form = LoginForm(request.POST)
+                return render(request, 'dogovor_query/login.html', {'form': form})
+    else:
+        if request.user.is_authenticated:
+            return redirect('query_list')
+        else:
+            form = LoginForm()
+            return render(request, 'dogovor_query/login.html', {'form': form})
+
+
+@login_required(login_url='specialist_login')
+def specialist_logout(request):
+    if request.user.is_authenticated:
+        logout(request)
+    return redirect('specialist_login')
+
+
+@login_required(login_url='specialist_login')
+def index(request):
+    context = {}
+    request_types = {request_type[0]: request_type[1] for request_type in Request.RequestTypes.choices}
+
+    statuses = ['activated', 'processing']
+
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
+                                                 specialist=request.user).\
+        order_by('request_id', '-created_at').distinct('request')
+    current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses).\
+        select_related('request', 'request__user')
+
+    if current_request_log:
+        current_request_log = current_request_log[0]
+        context['request_id'] = current_request_log.request_id
+        context['query_number'] = current_request_log.request.get_query_number()
+        context['status_created_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+        context['status'] = current_request_log.status
+        context['fio'] = current_request_log.request.user.__str__()
+        context['birthday'] = current_request_log.request.user.birthday.strftime('%d.%m.%Y')
+        context['phone_number'] = current_request_log.request.user.phone_number
+        context['request_type'] = request_types[current_request_log.request.type]
+        context['request_question'] = current_request_log.request.question
+    return render(request, 'dogovor_query/dashboard.html', context)
+
+
+def main_page(request):
+    if 'user_uid' in request.COOKIES:
+        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        if user:
+            context = {}
+            user = user[0]
+            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                                  created_at__gte=timezone.now().date())
+            if user_request:
+                user_request = user_request.latest()
+                user_request_status = user_request.requestlog_set
+                if user_request_status:
+                    user_request_status = user_request_status.latest()
+                    if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
+                        all_request_logs = \
+                            RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+                            order_by('request_id', '-created_at').distinct('request')
+
+                        created_postponed_amount = \
+                            RequestLog.objects.filter(pk__in=all_request_logs,
+                                                      status__in=['created', 'processing', 'activated'],
+                                                      request__created_at__lte=user_request.created_at).count()
+                        context['fio'] = user.__str__()
+                        if user_request_status.specialist:
+                            context['table_number'] = user_request_status.specialist.table_number
+                            context['specialist_name'] = user_request_status.specialist.get_full_name()
+                        context['query_number'] = user_request.get_query_number()
+                        context['current_status'] = user_request_status.status
+                        context['people_before_amount'] = max(created_postponed_amount - 1, 0)
+
+                        return render(request, 'dogovor_query/user_waiting.html', context)
+    return RequestWizard.as_view()(request)
+
+
+def get_query_position(request):
+    response = {'user_uid': '', 'query_number': '', 'current_status': '', 'people_before': ''}
+    if 'user_uid' in request.COOKIES:
+        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        if user:
+            response['user_uid'] = request.COOKIES['user_uid']
+            user = user[0]
+            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                                  created_at__gte=timezone.now().date())
+            if user_request:
+                user_request = user_request.latest()
+                user_request_status = user_request.requestlog_set.latest()
+                all_request_logs = \
+                    RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+                    order_by('request_id', '-created_at').distinct('request')
+
+                created_postponed_amount = \
+                    RequestLog.objects.filter(pk__in=all_request_logs,
+                                              status__in=['created', 'processing', 'activated'],
+                                              request__created_at__lte=user_request.created_at).count()
+                response['fio'] = user.__str__()
+                if user_request_status.specialist:
+                    response['table_number'] = user_request_status.specialist.table_number
+                    response['specialist_name'] = user_request_status.specialist.get_full_name()
+                response['query_number'] = user_request.get_query_number()
+                response['current_status'] = user_request_status.status
+                response['people_before'] = max(created_postponed_amount - 1, 0)
+    return HttpResponse(json.dumps(response))
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_query', raise_exception=True)
+def get_requests(request):
+    request_types = {request_type[0]: request_type[1] for request_type in Request.RequestTypes.choices}
+    if 'response_type' in request.GET:
+        response_type = request.GET['response_type']
+    else:
+        response_type = 'clean'
+    if 'status' in request.GET:
+        statuses = request.GET['status'].split('_')
+    else:
+        statuses = RequestLog.RequestStatus.values
+
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+        order_by('request_id', '-created_at').distinct('request')
+    postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
+    request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
+        select_related('request', 'request__user')
+
+    if response_type == 'clean':
+        response = {'data': [{'pk': log.request.pk, 'number': log.request.get_query_number(),
+                              'fio': log.request.user.__str__(),
+                              'birthday': log.request.user.birthday.strftime('%d.%m.%Y'),
+                              'phone_number': log.request.user.phone_number, 'type': request_types[log.request.type],
+                              'subject': log.request.question, 'status': log.status,
+                              'created_at': log.request.created_at.strftime('%d.%m.%Y %H:%M:%S')} for log in
+                             request_logs],
+                    'info': {
+                        'postponed_amount': postponed_amount,
+                    }}
+    elif response_type == 'datatable':
+        response = {'data': [[log.request.pk, log.request.get_query_number(), log.request.user.__str__(),
+                              log.request.user.birthday.strftime('%d.%m.%Y'), log.request.user.phone_number,
+                              request_types[log.request.type], log.request.question,
+                              log.request.created_at.strftime('%d.%m.%Y %H:%M:%S')] for log in request_logs]}
+    else:
+        response = []
+    json_dump = json.dumps(response)
+    return HttpResponse(json_dump, content_type='application/json')
+
+
+@login_required(login_url='specialist_login')
+@permission_required(['dogovor_query.view_query', 'dogovor_query.work_requests'], raise_exception=True)
+def update_status(request, action, request_pk):
+    response = {'request_pk': '', 'status': '', 'changed_at': '', 'changed': False, 'info': ''}
+
+    if action == 'get':
+        return HttpResponse('0')
+    elif action == 'update':
+        if 'status' in request.GET:
+            if request.GET['status'] in RequestLog.RequestStatus.values:
+                current_request_log = RequestLog.objects.filter(request_id=request_pk)
+                if current_request_log:
+                    current_request_log = current_request_log[0]
+                    response['request_pk'] = current_request_log.request_id
+                    if current_request_log.status == request.GET['status']:
+                        response['status'] = current_request_log.status
+                        response['changed_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+                        response['info'] = 'Status is already ' + current_request_log.status
+                    else:
+                        new_request_log = RequestLog(request_id=request_pk, specialist=request.user,
+                                                     status=request.GET['status'])
+                        new_request_log.save()
+                        response['status'] = new_request_log.status
+                        response['changed_at'] = new_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+                        response['changed'] = True
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+
+def is_hostel_request(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('user') or {}
+    if 'type' in cleaned_data:
+        if cleaned_data['type'] == 'hostel':
+            return True
+        else:
+            return False
+
+
+def is_university_request(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('user') or {}
+    if 'type' in cleaned_data:
+        if cleaned_data['type'] == 'university':
+            return True
+        else:
+            return False
+
+
+def temporary_move(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('hostel_subject') or {}
+    if 'temporary_move' in cleaned_data:
+        if cleaned_data['temporary_move'] is True:
+            return True
+        else:
+            return False
+
+
+class RequestWizard(SessionWizardView):
+    condition_dict = {
+        'university_subject': is_university_request,
+        'hostel_subject': is_hostel_request,
+        'hostel_subject_move': temporary_move
+    }
+
+    initial_dict = {
+        'user': {
+            'user_uid': uuid.uuid4().hex
+        }
+    }
+
+    form_list = FORMS
+
+    def get_template_names(self):
+        return [TEMPLATES[self.steps.current]]
+
+    def get_form_initial(self, step):
+        initial = self.initial_dict.get(step, {})
+        if step == 'user':
+            if 'fio' not in initial and 'phone_number' not in initial and 'birthday' not in initial:
+                if 'user_uid' in self.request.COOKIES:
+                    user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
+                    if user:
+                        initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
+                                        'birthday': user[0].birthday})
+        return initial
+
+    def done(self, form_list, **kwargs):
+        data = self.get_all_cleaned_data()
+        splitted_fio = split_fio(data['fio'])
+        user, created = User.objects.get_or_create(first_name=splitted_fio['first_name'],
+                                                   second_name=splitted_fio['second_name'],
+                                                   last_name=splitted_fio['last_name'],
+                                                   phone_number=data['phone_number'], birthday=data['birthday'])
+        if created is True:
+            user.user_uid = uuid.uuid4().hex
+            user.save()
+
+        if data['question'] == 'Другое':
+            data['question'] = data['other_text']
+
+        if data['type'] == 'hostel':
+            if data['temporary_move'] is True:
+                data['question'] += ';Временный выезд: ' + data['hostel_date_moveout'].strftime('%d.%m.%Y') + '-' + \
+                                    data['hostel_date_movein'].strftime('%d.%m.%Y')
+            if data['hostel_privileges']:
+                data['question'] += ';Льготы: ' + data['hostel_privileges']
+
+        extra_prop = ['fio', 'phone_number', 'user_uid', 'temporary_move', 'birthday', 'other_text',
+                      'hostel_date_moveout', 'hostel_date_movein', 'hostel', 'hostel_privileges']
+        for prop in extra_prop:
+            if prop in data:
+                data.pop(prop)
+
+        last_requests = Request.objects.filter(type=data['type'], created_at__gte=timezone.now().date())
+        if last_requests:
+            new_number = last_requests.order_by('-number')[0].number + 1
+        else:
+            new_number = 0
+
+        request = Request(user=user, number=new_number, **data)
+        request.save()
+        request_log = RequestLog(request=request, status=RequestLog.RequestStatus.CREATED)
+        request_log.save()
+        response = redirect('request_form')
+        response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
+                                                                datetime.timedelta(days=365)))
+        return response

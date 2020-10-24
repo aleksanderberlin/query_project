@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Электронная очередь Договорного отдела СПбГУТ
+{% endblock %}
+{% block additional_js %}
+    {{ block.super }}
+    <script src="{% static 'dogovor_query/user_form.js' %}"></script>
+{% endblock %}
+{% block additional_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'dogovor_query/user_form.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container-fluid font-size-12">
+        <div class="card m-2 text-white bg-warning">
+            <div class="card-header">
+                Электронная очередь Договорного отдела СПбГУТ
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-body">
+                ФИО: <span class="span_info" id="span_user_fio">{{ fio }}</span>
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-body">
+                Ваш номер: <span class="span_info" id="span_user_query_number">{{ query_number }}</span>
+            </div>
+        </div>
+        <div class="card m-2">
+            <div class="card-body">
+                Текущий статус:
+                {% if current_status == 'created' %}
+                    <span class="badge badge-warning" id="span_user_status">Ожидание вызова</span>
+                {% elif current_status == 'activated' %}
+                    <span class="badge badge-success blob" id="span_user_status">Вызов</span>
+                {% elif current_status == 'processing' %}
+                    <span class="badge badge-primary blob" id="span_user_status">Обработка</span>
+                {% elif current_status == 'cancelled' %}
+                    <span class="badge badge-danger" id="span_user_status">Отменена</span>
+                {% elif current_status == 'closed' %}
+                    <span class="badge badge-dark" id="span_user_status">Обработана</span>
+                {% elif current_status == 'postponed' %}
+                    <span class="badge badge-secondary" id="span_user_status">Отложена</span>
+                {% endif %}
+            </div>
+        </div>
+        {% if current_status == 'created' %}
+            <div id="card_people_before" class="card m-2">
+                <div class="card-body">
+                    Перед вами <span class="span_info" id="span_user_before_amount">{{ people_before_amount }}</span>
+                    чел. в
+                    очереди
+                </div>
+            </div>
+        {% else %}
+            <div id="card_people_before" class="card m-2 d-none">
+                <div class="card-body">
+                    Перед вами <span class="span_info" id="span_user_before_amount">{{ people_before_amount }}</span>
+                    чел. в
+                    очереди
+                </div>
+            </div>
+        {% endif %}
+        {% if current_status == 'activated' %}
+            <div id="card_welcome" class="card m-2 text-white bg-success">
+                <div class="card-body">
+                    Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер
+                    <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
+                    к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
+                </div>
+            </div>
+        {% elif current_status == 'processing' %}
+            <div id="card_welcome" class="card text-white bg-info m-2">
+                <div class="card-body">
+                    С Вами работает специалист <span class="span_info"
+                                                    id="span_specialist_name">{{ specialist_name }}</span>
+                </div>
+            </div>
+        {% else %}
+            <div id="card_welcome" class="card m-2 text-white bg-succes d-none">
+                <div class="card-body">
+                    Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер
+                    <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
+                    к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

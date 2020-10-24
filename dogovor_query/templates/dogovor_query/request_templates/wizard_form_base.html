@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+    {{ wizard.form.media }}
+{% endblock %}
+{% block additional_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
+{% endblock %}
+{% block additional_js %}
+    {{ block.super }}
+    <script src="{% static 'dogovor_query/form_js.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="card m-2 text-white bg-warning">
+        <div class="card-header">
+            Электронная очередь Договорного отдела СПбГУТ
+        </div>
+    </div>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+        {{ wizard.form.errors }}
+        {% block wizard_form %}
+        {% endblock %}
+        <div class="card m-2">
+            <div class="card-header">
+                {% if wizard.steps.prev %}
+                    <a class="btn btn-warning m-2" href="{% url 'request_form' %}?reset">Начать заново</a>
+                {% endif %}
+                <input class="btn btn-warning m-2 text-white" type="submit" value="Далее"/>
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
+{% block wizard_form %}
+    {#    <div class="card m-2">#}
+    {#        <div class="card-header">#}
+    {#            <label for="id_hostel-hostel">{{ wizard.form.hostel.label }}</label>#}
+    {#        </div>#}
+    {#        <div class="card-body">#}
+    {#            {{ wizard.form.hostel }}#}
+    {#        </div>#}
+    {#    </div>#}
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_hostel_subject-question">{{ wizard.form.question.label }}</label>
+        </div>
+        <div class="card-body">
+            {% for choice in wizard.form.question.field.choices %}
+                {% if choice.0 == 'Другое' %}
+                    <div class="form-check m-1">
+                        <div class="form-row">
+                            <div class="col-2">
+                                <div class="pretty p-bigger p-icon p-curve p-pulse">
+                                    <input type="radio" class="form-check-input" name="hostel_subject-question"
+                                           id="id_hostel_subject-question_{{ forloop.counter0 }}"
+                                           value="{{ choice.0 }}">
+                                    <div class="state p-warning">
+                                        <i class="icon mdi mdi-check"></i>
+                                        <label class="form-check-label"
+                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}:</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                {{ wizard.form.other_text }}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="form-check m-1">
+                        <div class="form-row">
+                            <div class="col">
+                                <div class="pretty p-bigger p-icon p-curve p-pulse">
+                                    <input type="radio" class="form-check-input" name="hostel_subject-question"
+                                           id="id_hostel_subject-question_{{ forloop.counter0 }}"
+                                           value="{{ choice.0 }}">
+                                    <div class="state p-warning">
+                                        <i class="icon mdi mdi-check"></i>
+                                        <label class="form-check-label"
+                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card m-2">
+        <div class="card-header">
+            <label for="id_hostel-hostel_privileges">{{ wizard.form.hostel_privileges.label }}</label>
+        </div>
+        <div class="card-body">
+            {{ wizard.form.hostel_privileges }}
+        </div>
+    </div>
+    <div class="card m-2">
+        <div class="card-header">
+            Временный выезд
+        </div>
+        <div class="card-body">
+            <div class="form-check m-1">
+                <div class="pretty p-bigger p-pulse p-curve p-toggle">
+                    {{ wizard.form.temporary_move }}
+                    <div class="state p-success p-on">
+                        <label>Я выезжал из общежития во время пандемии</label>
+                    </div>
+                    <div class="state p-danger p-off">
+                        <label>Я не выезжал из общежития во время пандемии </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

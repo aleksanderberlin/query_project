@@ -2,12 +2,9 @@ $(document).ready(function () {
     let span_user_status = $('#span_user_status')
     let div_card_people_before = $('#card_people_before')
     let div_card_welcome = $('#card_welcome')
-    // блоки
-    // 1) ФИО Клиента - всегда показывать
-    // 2) Номер талончика - всегда показывать
-    // 3) Текущий статус - всегда показывать
-    // 4) Сколько человек перед Вами - показывать ТОЛЬКО если заявка еще не вызвана
-    // 5) Карточка приглашения или статуса в работе - показывать ВО ВСЕХ случаях кроме когда карточка вызвана
+    let div_card_cancel_request = $('#card_cancel_request')
+    let div_card_new_request = $('#card_new_request')
+
     function update_request_status() {
         $.ajax({
             url: 'api/query/get',
@@ -20,6 +17,8 @@ $(document).ready(function () {
                     span_user_status.addClass('badge badge-warning')
                     div_card_people_before.show()
                     div_card_welcome.hide()
+                    div_card_cancel_request.show()
+                    div_card_new_request.hide()
                 } else if (data.current_status === 'activated') {
                     span_user_status.text('Вызов')
                     span_user_status.removeClass()
@@ -29,6 +28,8 @@ $(document).ready(function () {
                     div_card_welcome.find('div:nth-child(1)').html('Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер <span class="span_info" id="span_specialist_table_number"></span> к специалисту <span class="span_info" id="span_specialist_name"></span>')
                     div_card_welcome.show()
                     div_card_people_before.hide()
+                    div_card_cancel_request.hide()
+                    div_card_new_request.hide()
                 } else if (data.current_status === 'processing') {
                     span_user_status.text('Обработка')
                     span_user_status.removeClass()
@@ -38,24 +39,32 @@ $(document).ready(function () {
                     div_card_welcome.find('div:nth-child(1)').html('С Вами работает специалист <span class="span_info" id="span_specialist_name"></span>')
                     div_card_welcome.show()
                     div_card_people_before.hide()
+                    div_card_cancel_request.hide()
+                    div_card_new_request.hide()
                 } else if (data.current_status === 'cancelled') {
                     span_user_status.text('Отменена')
                     span_user_status.removeClass()
                     span_user_status.addClass('badge badge-danger')
                     div_card_welcome.hide()
                     div_card_people_before.hide()
+                    div_card_cancel_request.hide()
+                    div_card_new_request.show()
                 } else if (data.current_status === 'closed') {
                     span_user_status.text('Обработана')
                     span_user_status.removeClass()
                     span_user_status.addClass('badge badge-dark')
                     div_card_welcome.hide()
                     div_card_people_before.hide()
+                    div_card_cancel_request.hide()
+                    div_card_new_request.show()
                 } else if (data.current_status === 'postponed') {
                     span_user_status.text('Отложена')
                     span_user_status.removeClass()
                     span_user_status.addClass('badge badge-secondary')
                     div_card_welcome.hide()
                     div_card_people_before.hide()
+                    div_card_cancel_request.show()
+                    div_card_new_request.hide()
                 }
 
                 $('#span_user_query_number').text(data.query_number)
@@ -70,4 +79,24 @@ $(document).ready(function () {
     setInterval(function () {
         update_request_status();
     }, 10000);
+
+    $('#cancel_request').on('click', function () {
+        $.ajax({
+            type: 'GET',
+            url: '/api/request/cancel',
+            statusCode: {
+                403: function() {
+                    alert('Редактирование невозможно, статус заявки некорректный.')
+                }
+            },
+            success: function (response) {
+                span_user_status.text('Отменена')
+                span_user_status.removeClass()
+                span_user_status.addClass('badge badge-danger')
+                div_card_welcome.hide()
+                div_card_people_before.hide()
+                $('#card_cancel_request').hide()
+            }
+        })
+    })
 })

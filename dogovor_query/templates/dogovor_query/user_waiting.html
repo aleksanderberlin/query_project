@@ -75,7 +75,7 @@
             <div id="card_welcome" class="card text-white bg-info m-2">
                 <div class="card-body">
                     С Вами работает специалист <span class="span_info"
-                                                    id="span_specialist_name">{{ specialist_name }}</span>
+                                                     id="span_specialist_name">{{ specialist_name }}</span>
                 </div>
             </div>
         {% else %}
@@ -84,6 +84,32 @@
                     Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер
                     <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
                     к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
+                </div>
+            </div>
+        {% endif %}
+        {% if current_status == 'created' or current_status == 'postponed' %}
+            <div id="card_cancel_request" class="card m-2">
+                <div class="card-body">
+                    <button id="cancel_request" class="btn btn-danger">Отменить заявку</button>
+                </div>
+            </div>
+        {% else %}
+            <div id="card_cancel_request" class="card m-2" style="display: none">
+                <div class="card-body">
+                    <button id="cancel_request" class="btn btn-danger">Отменить заявку</button>
+                </div>
+            </div>
+        {% endif %}
+        {% if current_status == 'cancelled' or current_status == 'closed' %}
+            <div id="card_new_request" class="card m-2">
+                <div class="card-body">
+                    <a id="new_request" href="/" class="btn btn-primary">Создать новую заявку</a>
+                </div>
+            </div>
+        {% else %}
+            <div id="card_new_request" class="card m-2" style="display: none">
+                <div class="card-body">
+                    <a id="new_request" href="/" class="btn btn-primary">Создать новую заявку</a>
                 </div>
             </div>
         {% endif %}

@@ -26,6 +26,7 @@ urlpatterns = [
     path('manager/api/status/<str:action>/<int:request_pk>', get_update_status, name='get_update_status'),
     path('', main_page, name='request_form'),
     path('api/query/get', get_query_position, name='user_request_info'),
+    path('api/request/cancel', user_cancel_request, name='user_cancel_request')
 ]
 
 if settings.DEBUG:

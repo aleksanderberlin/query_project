@@ -41,7 +41,7 @@ $(document).ready(function () {
             "infoPostFix": "",
             "loadingRecords": "Загрузка заявок...",
             "zeroRecords": "Заявки отсутствуют.",
-            "emptyTable": "В настоящее время заявок нет",
+            "emptyTable": "В настоящее время новых заявок нет",
             "paginate": {
                 "first": "Первая",
                 "previous": "Предыдущая",

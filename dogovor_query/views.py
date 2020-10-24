@@ -155,6 +155,31 @@ def get_query_position(request):
     return HttpResponse(json.dumps(response))
 
 
+def user_cancel_request(request):
+    response = {'user_uid': '', 'query_number': '', 'current_status': '', 'changed': False}
+    status = 400
+    if 'user_uid' in request.COOKIES:
+        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        if user:
+            response['user_uid'] = request.COOKIES['user_uid']
+            user = user[0]
+            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                                  created_at__gte=timezone.now().date())
+            if user_request:
+                user_request = user_request.latest()
+                user_request_status = user_request.requestlog_set.latest()
+                response['query_number'] = user_request.get_query_number()
+                if user_request_status.status in ['created', 'postponed']:
+                    new_status = RequestLog(request=user_request, status='cancelled')
+                    new_status.save()
+                    response['changed'] = True
+                    status = 201
+                else:
+                    status = 403
+                response['current_status'] = user_request_status.status
+    return HttpResponse(json.dumps(response), status=status)
+
+
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_query', raise_exception=True)
 def get_requests(request):

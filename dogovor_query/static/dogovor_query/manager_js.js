@@ -62,18 +62,18 @@ $(document).ready(function () {
         },
         columns: [
             {data: 'pk'},
-            {data: 'number'},
-            {data: 'fio'},
-            {data: 'birthday'},
-            {data: 'phone_number'},
-            {data: 'type'},
-            {data: 'subject'},
+            {data: 'number', width: '7%'},
+            {data: 'fio', width: '20%'},
+            {data: 'birthday', width: '13%'},
+            {data: 'phone_number', width: '15%'},
+            {data: 'type', width: '11%'},
+            {data: 'subject', width: '20%'},
             {data: 'created_at'},
             {data: 'status'},
         ],
         "columnDefs": [
             {
-                "targets": [0, 8],
+                "targets": [0, 7, 8],
                 "visible": false,
                 "searchable": false
             }

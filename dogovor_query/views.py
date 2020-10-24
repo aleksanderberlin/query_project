@@ -72,9 +72,9 @@ def index(request):
     statuses = ['activated', 'processing']
 
     all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
-                                                 specialist=request.user).\
+                                                 specialist=request.user). \
         order_by('request_id', '-created_at').distinct('request')
-    current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses).\
+    current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
         select_related('request', 'request__user')
 
     if current_request_log:
@@ -107,7 +107,7 @@ def main_page(request):
                     if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
                         all_request_logs = \
                             RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
-                            order_by('request_id', '-created_at').distinct('request')
+                                order_by('request_id', '-created_at').distinct('request')
 
                         created_postponed_amount = \
                             RequestLog.objects.filter(pk__in=all_request_logs,
@@ -139,7 +139,7 @@ def get_query_position(request):
                 user_request_status = user_request.requestlog_set.latest()
                 all_request_logs = \
                     RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
-                    order_by('request_id', '-created_at').distinct('request')
+                        order_by('request_id', '-created_at').distinct('request')
 
                 created_postponed_amount = \
                     RequestLog.objects.filter(pk__in=all_request_logs,
@@ -171,7 +171,7 @@ def get_requests(request):
     all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
         order_by('request_id', '-created_at').distinct('request')
     postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
-    request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses).\
+    request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
         order_by('created_at').select_related('request', 'request__user')
 
     if response_type == 'clean':
@@ -198,9 +198,9 @@ def get_requests(request):
 
 @login_required(login_url='specialist_login')
 @permission_required(['dogovor_query.view_query', 'dogovor_query.work_requests'], raise_exception=True)
-def update_status(request, action, request_pk):
+def get_update_status(request, action, request_pk):
     response = {'request_pk': '', 'status': '', 'changed_at': '', 'changed': False, 'info': ''}
-
+    status = 400
     if action == 'get':
         return HttpResponse('0')
     elif action == 'update':
@@ -210,18 +210,28 @@ def update_status(request, action, request_pk):
                 if current_request_log:
                     current_request_log = current_request_log[0]
                     response['request_pk'] = current_request_log.request_id
-                    if current_request_log.status == request.GET['status']:
+                    if current_request_log.status == 'closed':
                         response['status'] = current_request_log.status
                         response['changed_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
-                        response['info'] = 'Status is already ' + current_request_log.status
+                        response['info'] = 'Request is already closed'
+                        status = 403
                     else:
-                        new_request_log = RequestLog(request_id=request_pk, specialist=request.user,
-                                                     status=request.GET['status'])
-                        new_request_log.save()
-                        response['status'] = new_request_log.status
-                        response['changed_at'] = new_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
-                        response['changed'] = True
-    return HttpResponse(json.dumps(response), content_type='application/json')
+                        if current_request_log.status == request.GET['status']:
+                            response['status'] = current_request_log.status
+                            response['changed_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+                            response['info'] = 'Status is already ' + current_request_log.status
+                            status = 409
+                        else:
+                            new_request_log = RequestLog(request_id=request_pk, specialist=request.user,
+                                                         status=request.GET['status'])
+                            new_request_log.save()
+                            response['status'] = new_request_log.status
+                            response['changed_at'] = new_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+                            response['changed'] = True
+                            status = 201
+    else:
+        status = 405
+    return HttpResponse(json.dumps(response), content_type='application/json', status=status)
 
 
 def is_hostel_request(wizard):

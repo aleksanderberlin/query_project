@@ -23,7 +23,7 @@ urlpatterns = [
     path('manager/login', specialist_login, name='specialist_login'),
     path('manager/logout', specialist_logout, name='specialist_logout'),
     path('manager/api/requests/get', get_requests, name='get_requests'),
-    path('manager/api/status/<str:action>/<int:request_pk>', update_status, name='update_status'),
+    path('manager/api/status/<str:action>/<int:request_pk>', get_update_status, name='get_update_status'),
     path('', main_page, name='request_form'),
     path('api/query/get', get_query_position, name='user_request_info'),
 ]

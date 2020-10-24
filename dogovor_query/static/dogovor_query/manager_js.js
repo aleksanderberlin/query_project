@@ -135,6 +135,32 @@ $(document).ready(function () {
                         data: {
                             'status': 'processing'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 5000,
+                                });
+                            },
+                            403: function() {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта',
+                                    delay: 5000,
+                                });
+                            },
+                            409: function() {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже находится в данном статусе',
+                                    delay: 5000,
+                                });
+                            }
+                        },
                         success: function (response) {
                             request_status.val('processing')
                             request_current_status_created_at.val(response.changed_at)
@@ -277,10 +303,10 @@ $(document).ready(function () {
                     $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")
                 },
                 action: function (e, dt, node, config) {
-                    if ($(node).text().endsWith('отложенные заявки')) {
+                    if (dt.ajax.url().endsWith('created')) {
                         dt.ajax.url('api/requests/get?status=postponed').load()
                         $(node).text('Вернуться к активным заявкам')
-                    } else if ($(node).text().endsWith('активным заявкам')) {
+                    } else if (dt.ajax.url().endsWith('postponed')) {
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')
                         $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")

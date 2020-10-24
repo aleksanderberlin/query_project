@@ -270,7 +270,7 @@ $(document).ready(function () {
             },
             {
                 text: 'Показать отложенные заявки',
-                className: 'btn-info',
+                className: 'btn-info btn-block',
                 init: function (api, node, config) {
                     $(node).removeClass('btn-secondary')
                     $(node).text(' Показать отложенные заявки')

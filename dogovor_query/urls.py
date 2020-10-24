@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/query/get', get_query_position, name='user_request_info'),
 ]
 
-urlpatterns += [
-    path('__debug__/', include(debug_toolbar.urls)),
-]
+if settings.DEBUG:
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]

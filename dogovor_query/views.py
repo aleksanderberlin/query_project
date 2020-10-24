@@ -171,8 +171,8 @@ def get_requests(request):
     all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
         order_by('request_id', '-created_at').distinct('request')
     postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
-    request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
-        select_related('request', 'request__user')
+    request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses).\
+        order_by('-created_at').select_related('request', 'request__user')
 
     if response_type == 'clean':
         response = {'data': [{'pk': log.request.pk, 'number': log.request.get_query_number(),

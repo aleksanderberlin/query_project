@@ -28,7 +28,7 @@ class RequestFormUser(forms.Form):
 
     def clean_birthday(self):
         value = self.cleaned_data['birthday']
-        if (datetime.datetime.now() - value).days < 3650:
+        if (datetime.datetime.now() - datetime.datetime.combine(value, datetime.datetime.min.time())).days < 3650:
             raise ValidationError('Некорретная дата рождения')
         return value
 

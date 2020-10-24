@@ -8,11 +8,13 @@ from .models import Specialist
 class CustomSpecialistCreationForm(UserCreationForm):
     class Meta(UserCreationForm):
         model = Specialist
+        fields = '__all__'
 
 
 class CustomSpecialistChangeForm(UserChangeForm):
     class Meta:
         model = Specialist
+        fields = '__all__'
 
 
 class LoginForm(forms.Form):

@@ -27,11 +27,10 @@ class RequestFormUser(forms.Form):
     user_uid = forms.CharField(max_length=40, widget=forms.HiddenInput())
 
     def clean_birthday(self):
-        value = datetime.datetime.strptime(self.cleaned_data['birthday'], '%d.%m.%Y')
+        value = self.cleaned_data['birthday']
         if (datetime.datetime.now() - value).days < 3650:
             raise ValidationError('Некорретная дата рождения')
         return value
-
 
 
 class RequestFormSubjectHostel(forms.Form):

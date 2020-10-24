@@ -1,5 +1,12 @@
 {% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
 {% block wizard_form %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+                This is a danger alert—check it out!
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="card m-2">
         <div class="card-header">
             <label for="id_user-fio">{{ wizard.form.fio.label }}</label>

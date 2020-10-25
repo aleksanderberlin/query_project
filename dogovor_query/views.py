@@ -309,6 +309,7 @@ class RequestWizard(SessionWizardView):
         if step == 'user':
             if 'fio' not in initial and 'phone_number' not in initial and 'birthday' not in initial:
                 if 'user_uid' in self.request.COOKIES:
+                    print(self.request.COOKIES)
                     user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
                     if user:
                         initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,

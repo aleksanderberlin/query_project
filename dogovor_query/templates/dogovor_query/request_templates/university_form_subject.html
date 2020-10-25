@@ -7,7 +7,7 @@
         <div class="card-body pl-0 pr-0">
             {% for choice in wizard.form.question.field.choices %}
                 {% if choice.0 == 'Другое' %}
-                    <div class="form-check mt-2 mb-2">
+                    <div class="form-check mt-2 mb-2 mr-1">
                         <div class="form-row">
                             <div class="col-auto">
                                 <div class="pretty p-bigger p-icon p-curve p-pulse">
@@ -30,7 +30,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <div class="form-check mt-2 mb-2">
+                    <div class="form-check mt-2 mb-2 mr-1">
                         <div class="form-row">
                             <div class="col-auto">
                                 <div class="pretty p-bigger p-icon p-curve p-pulse">

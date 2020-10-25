@@ -92,6 +92,8 @@ def index(request):
 
 
 def main_page(request):
+    print(request.session)
+    # del request.session['wizard_name']
     if 'user_uid' in request.COOKIES:
         user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         if user:
@@ -356,6 +358,4 @@ class RequestWizard(SessionWizardView):
         response = redirect('request_form')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                 datetime.timedelta(days=365)))
-        self.instance_dict = None
-        self.storage.reset()
         return response

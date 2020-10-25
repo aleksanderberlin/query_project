@@ -72,7 +72,7 @@ class RequestFormSubjectHostel(forms.Form):
     hostel_privileges = forms.CharField(max_length=150, label='Льготы', widget=forms.TextInput(attrs={
         'class': 'form-control'}), required=False)
     temporary_move = forms.BooleanField(label='Выезжали ли Вы на временный выезд из общежития?', required=False,
-                                        widget=forms.CheckboxInput(attrs={'class': 'form-control'}))
+                                        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
     other_text = forms.CharField(max_length=150, label='Другое', required=False, widget=forms.TextInput(attrs={
         'class': 'form-control form-control-sm', 'readonly': 'True'}))

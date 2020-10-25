@@ -1,13 +1,6 @@
 {% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
 {% block wizard_form %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-danger" role="alert">
-                This is a danger alert—check it out!
-            </div>
-        {% endfor %}
-    {% endif %}
-    <div class="card m-2">
+    <div class="card mt-2 mb-2">
         <div class="card-header">
             <label for="id_user-fio">{{ wizard.form.fio.label }}</label>
         </div>
@@ -18,7 +11,7 @@
             </div>
         </div>
     </div>
-    <div class="card m-2">
+    <div class="card mt-2 mb-2">
         <div class="card-header">
             <label for="id_user-birthday">{{ wizard.form.birthday.label }}</label>
         </div>
@@ -28,7 +21,7 @@
             </div>
         </div>
     </div>
-    <div class="card m-2">
+    <div class="card mt-2 mb-2">
         <div class="card-header">
             <label for="id_user-phone_number">{{ wizard.form.phone_number.label }}</label>
         </div>
@@ -38,7 +31,7 @@
             </div>
         </div>
     </div>
-    <div class="card m-2">
+    <div class="card mt-2 mb-2">
         <div class="card-header">
             <label for="id_user-type">{{ wizard.form.type.label }}</label>
         </div>

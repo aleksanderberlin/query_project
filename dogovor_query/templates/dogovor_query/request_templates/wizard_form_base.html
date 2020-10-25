@@ -19,37 +19,40 @@
 {% endblock %}
 
 {% block content %}
-    <div class="card m-2 text-white bg-warning">
-        <div class="card-header">
-            Электронная очередь Договорного отдела СПбГУТ
+    <div class="container-xl">
+        <div class="card mt-3 text-white bg-warning">
+            <div class="card-header">
+                Электронная очередь Договорного отдела
+            </div>
         </div>
-    </div>
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ wizard.management_form }}
-        {% if wizard.form.errors %}
-            {% for field in wizard.form %}
-                {% for error in field.errors %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ wizard.management_form }}
+            {% if wizard.form.errors %}
+                {% for field in wizard.form %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-danger m-2">
+                            {{ error|escape }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
                     <div class="alert alert-danger m-2">
                         {{ error|escape }}
                     </div>
                 {% endfor %}
-            {% endfor %}
-            {% for error in form.non_field_errors %}
-                <div class="alert alert-danger m-2">
-                    {{ error|escape }}
+            {% endif %}
+            {% block wizard_form %}
+            {% endblock %}
+            <div class="card mt-2 mb-2">
+                <div class="card-header">
+                    {% if wizard.steps.prev %}
+                        <a class="btn btn-warning m-2 text-white" href="{% url 'request_form' %}?reset">Начать
+                            заново</a>
+                    {% endif %}
+                    <input class="btn btn-warning m-2 text-white" style="float: right" type="submit" value="Далее >"/>
                 </div>
-            {% endfor %}
-        {% endif %}
-        {% block wizard_form %}
-        {% endblock %}
-        <div class="card m-2">
-            <div class="card-header">
-                {% if wizard.steps.prev %}
-                    <a class="btn btn-warning m-2 text-white" href="{% url 'request_form' %}?reset">Начать заново</a>
-                {% endif %}
-                <input class="btn btn-warning m-2 text-white" type="submit" value="Далее"/>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 {% endblock %}

@@ -356,4 +356,6 @@ class RequestWizard(SessionWizardView):
         response = redirect('request_form')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                 datetime.timedelta(days=365)))
+        self.instance_dict = None
+        self.storage.reset()
         return response

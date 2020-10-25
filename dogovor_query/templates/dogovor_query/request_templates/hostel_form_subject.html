@@ -1,33 +1,28 @@
 {% extends 'dogovor_query/request_templates/wizard_form_base.html' %}
 {% block wizard_form %}
-    {#    <div class="card m-2">#}
-    {#        <div class="card-header">#}
-    {#            <label for="id_hostel-hostel">{{ wizard.form.hostel.label }}</label>#}
-    {#        </div>#}
-    {#        <div class="card-body">#}
-    {#            {{ wizard.form.hostel }}#}
-    {#        </div>#}
-    {#    </div>#}
     <div class="card m-2">
         <div class="card-header">
             <label for="id_hostel_subject-question">{{ wizard.form.question.label }}</label>
         </div>
-        <div class="card-body">
+        <div class="card-body pl-0 pr-0">
             {% for choice in wizard.form.question.field.choices %}
                 {% if choice.0 == 'Другое' %}
-                    <div class="form-check m-1">
+                    <div class="form-check mt-2 mb-2">
                         <div class="form-row">
-                            <div class="col-2">
+                            <div class="col-auto">
                                 <div class="pretty p-bigger p-icon p-curve p-pulse">
                                     <input type="radio" class="form-check-input" name="hostel_subject-question"
                                            id="id_hostel_subject-question_{{ forloop.counter0 }}"
                                            value="{{ choice.0 }}">
                                     <div class="state p-warning">
                                         <i class="icon mdi mdi-check"></i>
-                                        <label class="form-check-label"
-                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}:</label>
+                                        <label></label>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-check-label"
+                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}:</label>
                             </div>
                             <div class="col">
                                 {{ wizard.form.other_text }}
@@ -35,19 +30,22 @@
                         </div>
                     </div>
                 {% else %}
-                    <div class="form-check m-1">
+                    <div class="form-check mt-2 mb-2">
                         <div class="form-row">
-                            <div class="col">
+                            <div class="col-auto">
                                 <div class="pretty p-bigger p-icon p-curve p-pulse">
                                     <input type="radio" class="form-check-input" name="hostel_subject-question"
                                            id="id_hostel_subject-question_{{ forloop.counter0 }}"
                                            value="{{ choice.0 }}">
                                     <div class="state p-warning">
                                         <i class="icon mdi mdi-check"></i>
-                                        <label class="form-check-label"
-                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}</label>
+                                        <label></label>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col">
+                                <label class="form-check-label"
+                                               for="id_hostel_subject-question_{{ forloop.counter0 }}">{{ choice.1 }}</label>
                             </div>
                         </div>
                     </div>

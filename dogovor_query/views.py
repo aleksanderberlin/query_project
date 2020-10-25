@@ -30,40 +30,6 @@ def split_fio(fio):
     return {'last_name': splitted_fio[0], 'first_name': splitted_fio[1], 'second_name': second_name}
 
 
-def specialist_login(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            user = authenticate(username=cd['username'], password=cd['password'])
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    if 'next' in request.GET:
-                        return redirect(request.GET['next'])
-                    else:
-                        return redirect('query_list')
-                else:
-                    form = LoginForm(request.POST)
-                    return render(request, 'dogovor_query/login.html', {'form': form})
-            else:
-                form = LoginForm(request.POST)
-                return render(request, 'dogovor_query/login.html', {'form': form})
-    else:
-        if request.user.is_authenticated:
-            return redirect('query_list')
-        else:
-            form = LoginForm()
-            return render(request, 'dogovor_query/login.html', {'form': form})
-
-
-@login_required(login_url='specialist_login')
-def specialist_logout(request):
-    if request.user.is_authenticated:
-        logout(request)
-    return redirect('specialist_login')
-
-
 @login_required(login_url='specialist_login')
 def index(request):
     context = {}

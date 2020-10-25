@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
 
-class Specialist(AbstractUser):
-    table_number = models.IntegerField(verbose_name='Номер стола', blank=True, null=True)
+# class Specialist(AbstractUser):
+#     table_number = models.IntegerField(verbose_name='Номер стола', blank=True, null=True)
 
 
 class User(models.Model):

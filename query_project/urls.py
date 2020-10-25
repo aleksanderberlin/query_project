@@ -22,7 +22,8 @@ import debug_toolbar
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico'), name='favicon'),
-    path('', include('dogovor_query.urls'))
+    path('', include('dogovor_query.urls')),
+    path('specialist/', include('specialist.urls'))
 ]
 
 if settings.DEBUG:

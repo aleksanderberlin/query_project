@@ -16,18 +16,8 @@ Including another URLconf
 from .views import *
 from .forms import *
 from django.urls import path, include
-import debug_toolbar
 
 urlpatterns = [
-    path('manager/', index, name='query_list'),
-    path('manager/api/requests/get', get_requests, name='get_requests'),
-    path('manager/api/status/<str:action>/<int:request_pk>', get_update_status, name='get_update_status'),
-    path('', main_page, name='request_form'),
-    path('api/query/get', get_query_position, name='user_request_info'),
-    path('api/request/cancel', user_cancel_request, name='user_cancel_request')
+    path('specialist/login', specialist_login, name='specialist_login'),
+    path('specialist/logout', specialist_logout, name='specialist_logout'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ]

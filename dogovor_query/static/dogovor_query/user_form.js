@@ -4,6 +4,7 @@ $(document).ready(function () {
     let div_card_welcome = $('#card_welcome')
     let div_card_cancel_request = $('#card_cancel_request')
     let div_card_new_request = $('#card_new_request')
+    let attention_info = $('#attention_info')
 
     function update_request_status() {
         $.ajax({
@@ -19,6 +20,7 @@ $(document).ready(function () {
                     div_card_welcome.hide()
                     div_card_cancel_request.show()
                     div_card_new_request.hide()
+                    attention_info.show()
                 } else if (data.current_status === 'activated') {
                     span_user_status.text('Вызов')
                     span_user_status.removeClass()
@@ -30,6 +32,7 @@ $(document).ready(function () {
                     div_card_people_before.hide()
                     div_card_cancel_request.hide()
                     div_card_new_request.hide()
+                    attention_info.hide()
                 } else if (data.current_status === 'processing') {
                     span_user_status.text('Обработка')
                     span_user_status.removeClass()
@@ -41,6 +44,7 @@ $(document).ready(function () {
                     div_card_people_before.hide()
                     div_card_cancel_request.hide()
                     div_card_new_request.hide()
+                    attention_info.hide()
                 } else if (data.current_status === 'cancelled') {
                     span_user_status.text('Отменена')
                     span_user_status.removeClass()
@@ -49,6 +53,7 @@ $(document).ready(function () {
                     div_card_people_before.hide()
                     div_card_cancel_request.hide()
                     div_card_new_request.show()
+                    attention_info.hide()
                 } else if (data.current_status === 'closed') {
                     span_user_status.text('Обработана')
                     span_user_status.removeClass()
@@ -57,6 +62,7 @@ $(document).ready(function () {
                     div_card_people_before.hide()
                     div_card_cancel_request.hide()
                     div_card_new_request.show()
+                    attention_info.hide()
                 } else if (data.current_status === 'postponed') {
                     span_user_status.text('Отложена')
                     span_user_status.removeClass()
@@ -65,6 +71,7 @@ $(document).ready(function () {
                     div_card_people_before.hide()
                     div_card_cancel_request.show()
                     div_card_new_request.hide()
+                    attention_info.show()
                 }
 
                 $('#span_user_query_number').text(data.query_number)
@@ -97,6 +104,7 @@ $(document).ready(function () {
                 div_card_people_before.hide()
                 div_card_cancel_request.hide()
                 div_card_new_request.show()
+                attention_info.hide()
                 clearInterval(status_auto_update);
             }
         })

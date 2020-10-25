@@ -18,6 +18,29 @@
                 Электронная очередь Договорного отдела
             </div>
         </div>
+        {% if current_status == 'created' or current_status == 'postponed' %}
+            <div id="attention_info" class="card mt-2 mb-2">
+                <div class="card-header">
+                    Обратите внимание!
+                </div>
+                <div class="card-body">
+                    Данная страница обновляется автоматически. Когда специалист будет готов Вас принять, статус заявки
+                    изменится на "Вызов", и появится дополнительное информационное сообщение, подсвеченное зеленым
+                    цветом.
+                </div>
+            </div>
+        {% else %}
+            <div id="attention_info" class="card mt-2 mb-2" style="display: none">
+                <div class="card-header">
+                    Обратите внимание!
+                </div>
+                <div class="card-body">
+                    Данная страница обновляется автоматически. Когда специалист будет готов Вас принять, статус заявки
+                    изменится на "Вызов", и появится дополнительное информационное сообщение, подсвеченное зеленым
+                    цветом.
+                </div>
+            </div>
+        {% endif %}
         <div class="card mt-2 mb-2">
             <div class="card-body pr-0">
                 ФИО: <span class="span_info" id="span_user_fio">{{ fio }}</span>

@@ -92,7 +92,7 @@ def index(request):
 
 
 def main_page(request):
-    print(request.session)
+    print(request.session['RequestWizard'])
     # del request.session['wizard_name']
     if 'user_uid' in request.COOKIES:
         user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)

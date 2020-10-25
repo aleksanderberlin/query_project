@@ -92,7 +92,6 @@ def index(request):
 
 
 def main_page(request):
-    del request.session['wizard_request_wizard']
     if 'user_uid' in request.COOKIES:
         user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         if user:
@@ -121,7 +120,6 @@ def main_page(request):
                         context['query_number'] = user_request.get_query_number()
                         context['current_status'] = user_request_status.status
                         context['people_before_amount'] = max(created_postponed_amount - 1, 0)
-
                         return render(request, 'dogovor_query/user_waiting.html', context)
     return RequestWizard.as_view()(request)
 
@@ -296,8 +294,9 @@ class RequestWizard(SessionWizardView):
 
     initial_dict = {
         'user': {
-            'user_uid': uuid.uuid4().hex
-        }
+            'user_uid': uuid.uuid4().hex,
+            'user_checked': False
+        },
     }
 
     form_list = FORMS
@@ -308,12 +307,12 @@ class RequestWizard(SessionWizardView):
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
         if step == 'user':
-            if 'fio' not in initial and 'phone_number' not in initial and 'birthday' not in initial:
-                if 'user_uid' in self.request.COOKIES:
-                    user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
-                    if user:
-                        initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
-                                        'birthday': user[0].birthday})
+            if 'user_uid' in self.request.COOKIES and self.initial_dict['user']['user_checked'] is False:
+                print('checking user init')
+                user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
+                if user:
+                    initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
+                                    'birthday': user[0].birthday, 'user_checked': True})
         return initial
 
     def done(self, form_list, **kwargs):
@@ -356,4 +355,5 @@ class RequestWizard(SessionWizardView):
         response = redirect('request_form')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                 datetime.timedelta(days=365)))
+        self.initial_dict['user']['user_checked'] = False
         return response

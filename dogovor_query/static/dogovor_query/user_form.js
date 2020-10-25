@@ -76,7 +76,7 @@ $(document).ready(function () {
         })
     }
 
-    setInterval(function () {
+    let status_auto_update = setInterval(function () {
         update_request_status();
     }, 10000);
 
@@ -97,6 +97,7 @@ $(document).ready(function () {
                 div_card_people_before.hide()
                 div_card_cancel_request.hide()
                 div_card_new_request.show()
+                clearInterval(status_auto_update);
             }
         })
     })

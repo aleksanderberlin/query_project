@@ -67,7 +67,7 @@ $(document).ready(function () {
             {data: 'birthday', width: '13%'},
             {data: 'phone_number', width: '15%'},
             {data: 'type', width: '15%'},
-            {data: 'subject', width: '30%'},
+            {data: 'question', width: '30%'},
             {data: 'created_at'},
             {data: 'status'},
         ],

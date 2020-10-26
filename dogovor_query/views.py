@@ -169,7 +169,7 @@ def get_requests(request):
                               'fio': log.request.user.__str__(),
                               'birthday': log.request.user.birthday.strftime('%d.%m.%Y'),
                               'phone_number': log.request.user.phone_number, 'type': request_types[log.request.type],
-                              'subject': log.request.question, 'status': log.status,
+                              'question': log.request.question, 'status': log.status,
                               'created_at': log.request.created_at.strftime('%d.%m.%Y %H:%M:%S')} for log in
                              request_logs],
                     'info': {

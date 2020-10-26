@@ -18,6 +18,6 @@ from .forms import *
 from django.urls import path, include
 
 urlpatterns = [
-    path('specialist/login', specialist_login, name='specialist_login'),
-    path('specialist/logout', specialist_logout, name='specialist_logout'),
+    path('login', specialist_login, name='specialist_login'),
+    path('logout', specialist_logout, name='specialist_logout'),
 ]

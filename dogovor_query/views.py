@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
@@ -28,33 +28,6 @@ def split_fio(fio):
     else:
         second_name = None
     return {'last_name': splitted_fio[0], 'first_name': splitted_fio[1], 'second_name': second_name}
-
-
-@login_required(login_url='specialist_login')
-def index(request):
-    context = {}
-    request_types = {request_type[0]: request_type[1] for request_type in Request.RequestTypes.choices}
-
-    statuses = ['activated', 'processing']
-
-    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
-                                                 specialist=request.user). \
-        order_by('request_id', '-created_at').distinct('request')
-    current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
-        select_related('request', 'request__user')
-
-    if current_request_log:
-        current_request_log = current_request_log[0]
-        context['request_id'] = current_request_log.request_id
-        context['query_number'] = current_request_log.request.get_query_number()
-        context['status_created_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
-        context['status'] = current_request_log.status
-        context['fio'] = current_request_log.request.user.__str__()
-        context['birthday'] = current_request_log.request.user.birthday.strftime('%d.%m.%Y')
-        context['phone_number'] = current_request_log.request.user.phone_number
-        context['request_type'] = request_types[current_request_log.request.type]
-        context['request_question'] = current_request_log.request.question
-    return render(request, 'dogovor_query/dashboard.html', context)
 
 
 def main_page(request):
@@ -143,6 +116,54 @@ def user_cancel_request(request):
                     status = 403
                 response['current_status'] = user_request_status.status
     return HttpResponse(json.dumps(response), status=status)
+
+
+@login_required(login_url='specialist_login')
+def index(request):
+    context = {}
+    request_types = {request_type[0]: request_type[1] for request_type in Request.RequestTypes.choices}
+
+    statuses = ['activated', 'processing']
+
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
+                                                 specialist=request.user). \
+        order_by('request_id', '-created_at').distinct('request')
+    current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
+        select_related('request', 'request__user')
+
+    if current_request_log:
+        current_request_log = current_request_log[0]
+        context['request_id'] = current_request_log.request_id
+        context['query_number'] = current_request_log.request.get_query_number()
+        context['status_created_at'] = current_request_log.created_at.strftime('%d.%m.%Y %H:%M:%S')
+        context['status'] = current_request_log.status
+        context['fio'] = current_request_log.request.user.__str__()
+        context['birthday'] = current_request_log.request.user.birthday.strftime('%d.%m.%Y')
+        context['phone_number'] = current_request_log.request.user.phone_number
+        context['request_type'] = request_types[current_request_log.request.type]
+        context['request_question'] = current_request_log.request.question
+        context['notes'] = ';'.join([note.text for note in current_request_log.request.note_set.all()])
+    return render(request, 'dogovor_query/dashboard.html', context)
+
+
+@login_required(login_url='specialist_login')
+def add_note(request):
+    response = {'request_id': '', 'specialist_id': '', 'note_text': '', 'created_at': ''}
+    status = 400
+    if 'request_id' in request.GET and 'note_text' in request.GET:
+        response['request_id'] = request.GET['request_id']
+        response['note_text'] = request.GET['note_text']
+        response['specialist_id'] = request.user.pk
+        try:
+            user_request = Request.objects.get(pk=request.GET['request_id'])
+        except Request.DoesNotExist:
+            return HttpResponse(json.dumps(response), content_type='application/json', status=status)
+        new_note = Note(request=user_request, specialist=request.user, text=request.GET['note_text'])
+        new_note.save()
+        response['created_at'] = new_note.created_at.strftime('%d.%m.%Y %H:%M:%S')
+        status = 200
+    return HttpResponse(json.dumps(response), content_type='application/json', status=status)
+
 
 
 @login_required(login_url='specialist_login')

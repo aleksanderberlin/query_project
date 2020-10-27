@@ -1,10 +1,5 @@
 from django.db import models
-# from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
-
-# class Specialist(AbstractUser):
-#     table_number = models.IntegerField(verbose_name='Номер стола', blank=True, null=True)
 
 
 class User(models.Model):
@@ -79,7 +74,7 @@ class RequestLog(models.Model):
     specialist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, null=True, blank=True,
                                    verbose_name='Специалист')
     status = models.CharField(max_length=15, verbose_name='Статус', choices=RequestStatus.choices)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Отметка времени')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
@@ -89,3 +84,20 @@ class RequestLog(models.Model):
 
     def __str__(self):
         return str(self.request.pk) + ' - ' + self.status + ' - ' + self.created_at.strftime('%d.%m.%Y %H:%M')
+
+
+class Note(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE)
+    specialist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True,
+                                   verbose_name='Специалист')
+    text = models.CharField(max_length=200, verbose_name='Текст')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
+    removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
+
+    class Meta:
+        ordering = ['created_at']
+        get_latest_by = 'created_at'
+
+    def __str__(self):
+        return str(self.request_id) + ' - ' + str(self.specialist_id) + ' - ' + self.text

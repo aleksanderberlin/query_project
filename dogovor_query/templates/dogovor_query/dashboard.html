@@ -75,6 +75,16 @@
                                 </div>
                             </div>
                         </li>
+                        <li class="list-group-item py-1">
+                            <div class="row">
+                                <div class="col-3">
+                                    <span>Примечание</span>
+                                </div>
+                                <div class="col">
+                                    <span id="request_notes">{{ notes }}</span>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -101,6 +111,27 @@
             <tbody>
             </tbody>
         </table>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="add_note_modal" tabindex="-1" aria-labelledby="add_note_modal_label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="add_note_modal_label">Добавить комментарий к заявке</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="request_note">Текст примечания</label>
+                    <textarea class="form-control" id="request_text_note" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" id="add_note" class="btn btn-success">Добавить</button>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 

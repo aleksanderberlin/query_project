@@ -21,6 +21,7 @@ import debug_toolbar
 urlpatterns = [
     path('manager/', index, name='query_list'),
     path('manager/api/requests/get', get_requests, name='get_requests'),
+    path('manager/api/note/add', add_note, name='add_note'),
     path('manager/api/status/<str:action>/<int:request_pk>', get_update_status, name='get_update_status'),
     path('', main_page, name='request_form'),
     path('api/query/get', get_query_position, name='user_request_info'),

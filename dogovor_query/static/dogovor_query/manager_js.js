@@ -11,6 +11,9 @@ $(document).ready(function () {
     let request_current_status_created_at = $('#request_current_status_created_at')
     let span_timer = $('#current_client_status_time')
     let timer = new easytimer.Timer()
+    let request_id_note = $('#request_id_note')
+    let request_text_note = $('#request_text_note')
+    let add_note_modal = $('#add_note_modal')
 
     let requests_table = $('#requests_table').DataTable({
         "paging": false,
@@ -147,7 +150,7 @@ $(document).ready(function () {
                             timer_change_state('start', response.changed_at)
                             dt.rows('.selected').remove().draw(false);
                             dt.buttons([0, 4]).disable()
-                            dt.buttons([1, 2, 3]).enable()
+                            dt.buttons([1, 2, 3, 5]).enable()
                         }
                     })
                 }
@@ -210,7 +213,7 @@ $(document).ready(function () {
                             timer_change_state('stop')
                             timer_change_state('start', response.changed_at)
                             dt.buttons([0, 1, 2]).disable()
-                            dt.buttons([4]).enable()
+                            dt.buttons([3, 4, 5]).enable()
                         }
                     })
                 }
@@ -286,7 +289,7 @@ $(document).ready(function () {
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
                 }
@@ -355,7 +358,7 @@ $(document).ready(function () {
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
                 }
@@ -424,9 +427,30 @@ $(document).ready(function () {
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
+                }
+            },
+            {
+                text: 'Добавить примечание',
+                className: 'btn-secondary',
+                init: function (api, node, config) {
+                    if (request_id.val().length === 0) {
+                        this.disable()
+                    }
+                },
+                action: function (e, dt, node, config) {
+                    if (request_id.val().length !== 0) {
+                        add_note_modal.modal('show')
+                    } else {
+                        $.toast({
+                            type: 'error',
+                            title: 'Ошибка',
+                            content: 'Попробуйте обновить страницу.',
+                            delay: 5000,
+                        });
+                    }
                 }
             },
             {
@@ -497,4 +521,49 @@ $(document).ready(function () {
         span_timer.text(timer.getTimeValues().toString());
     });
 
+    $('#add_note').on('click', function () {
+        if (request_id.val().length !== 0 && request_text_note.val().length !== 0) {
+            $.ajax({
+                type: 'GET',
+                url: '/manager/api/note/add',
+                data: {
+                    'request_id': request_id.val(),
+                    'note_text': request_text_note.val()
+                },
+                statusCode: {
+                    400: function () {
+                        $.toast({
+                            type: 'error',
+                            title: 'Ошибка',
+                            content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                            delay: 5000,
+                        });
+                    }
+                },
+                success: function (response) {
+                    $.toast({
+                        type: 'success',
+                        title: 'Успешно',
+                        content: 'Примечание успешно добавлено.',
+                        delay: 5000,
+                    });
+                    let request_notes = $('#request_notes')
+                    if (request_notes.text().length > 0) {
+                        request_notes.text(request_notes.text() + ";" + response.note_text)
+                    } else {
+                        request_notes.text(response.note_text)
+                    }
+                    request_text_note.val('')
+                    add_note_modal.modal('hide')
+                }
+            })
+        } else {
+            $.toast({
+                type: 'error',
+                title: 'Ошибка',
+                content: 'Попробуйте обновить страницу.',
+                delay: 5000,
+            });
+        }
+    })
 });

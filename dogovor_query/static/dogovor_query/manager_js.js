@@ -14,6 +14,8 @@ $(document).ready(function () {
     let request_id_note = $('#request_id_note')
     let request_text_note = $('#request_text_note')
     let add_note_modal = $('#add_note_modal')
+    let requests_count = 0
+    let is_first_ajax_call = 1
 
     let requests_table = $('#requests_table').DataTable({
         "paging": false,
@@ -28,6 +30,19 @@ $(document).ready(function () {
                 $('#postponed_amount').text(data.info.postponed_amount)
                 $('#created_amount').text(data.info.created_amount)
                 return data.data
+            },
+            "complete": function (data) {
+                let requests = data['responseJSON'].data
+                if (requests_table.ajax.url().endsWith('created')) {
+                    if (requests_count < requests.length && is_first_ajax_call === 0) {
+                        let audioElement = document.createElement('audio');
+                        audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/message-tones/pristine-609/download/file-sounds-1150-pristine.mp3');
+                        let promise = audioElement.play()
+                    } else if (is_first_ajax_call === 1) {
+                        is_first_ajax_call = 0
+                    }
+                    requests_count = requests.length
+                }
             }
         },
         "ordering": false,
@@ -463,9 +478,11 @@ $(document).ready(function () {
                 },
                 action: function (e, dt, node, config) {
                     if (dt.ajax.url().endsWith('created')) {
+                        current_request_type = 'postponed'
                         dt.ajax.url('api/requests/get?status=postponed').load()
                         $(node).text('Вернуться к активным заявкам')
                     } else if (dt.ajax.url().endsWith('postponed')) {
+                        current_request_type = 'created'
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')
                         $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")

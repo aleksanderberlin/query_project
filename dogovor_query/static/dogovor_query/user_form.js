@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     function update_request_status() {
         $.ajax({
-            url: 'api/query/get',
+            url: '/api/query/get',
             success: function (response) {
                 let data = JSON.parse(response)
 

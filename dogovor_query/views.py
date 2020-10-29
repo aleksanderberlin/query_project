@@ -32,7 +32,13 @@ def split_fio(fio):
 
 def main_page(request):
     if 'user_uid' in request.COOKIES:
-        return HttpResponseNotFound()
+        return redirect('query_position')
+    else:
+        return redirect('query_form')
+
+
+def query_position(request):
+    if 'user_uid' in request.COOKIES:
         user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         if user:
             context = {}
@@ -61,7 +67,7 @@ def main_page(request):
                         context['current_status'] = user_request_status.status
                         context['people_before_amount'] = max(created_postponed_amount - 1, 0)
                         return render(request, 'dogovor_query/user_waiting.html', context)
-    return RequestWizard.as_view()(request)
+    return redirect('query_form')
 
 
 def get_query_position(request):
@@ -340,7 +346,7 @@ class RequestWizard(SessionWizardView):
         request.save()
         request_log = RequestLog(request=request, status=RequestLog.RequestStatus.CREATED)
         request_log.save()
-        response = redirect('request_form')
+        response = redirect('query_position')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                 datetime.timedelta(days=365)))
         self.initial_dict['user']['user_checked'] = False

@@ -32,6 +32,7 @@ def split_fio(fio):
 
 def main_page(request):
     if 'user_uid' in request.COOKIES:
+        return HttpResponseNotFound()
         user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         if user:
             context = {}

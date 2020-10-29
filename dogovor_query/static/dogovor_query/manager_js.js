@@ -36,7 +36,7 @@ $(document).ready(function () {
                 if (requests_table.ajax.url().endsWith('created')) {
                     if (requests_count < requests.length && is_first_ajax_call === 0) {
                         let audioElement = document.createElement('audio');
-                        audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/message-tones/pristine-609/download/file-sounds-1150-pristine.mp3');
+                        audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/notification-sounds/just-maybe-577/download/file-sounds-1124-just-maybe.mp3');
                         let promise = audioElement.play()
                     } else if (is_first_ajax_call === 1) {
                         is_first_ajax_call = 0
@@ -537,6 +537,19 @@ $(document).ready(function () {
     timer.addEventListener('reset', function (e) {
         span_timer.text(timer.getTimeValues().toString());
     });
+    //
+    // function sound_notification_on_requests() {
+    //     if (requests_table.ajax.url().endsWith('created')) {
+    //         if (requests_count < requests.length && is_first_ajax_call === 0) {
+    //             let audioElement = document.createElement('audio');
+    //             audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/notification-sounds/just-maybe-577/download/file-sounds-1124-just-maybe.mp3');
+    //             let promise = audioElement.play()
+    //         } else if (is_first_ajax_call === 1) {
+    //             is_first_ajax_call = 0
+    //         }
+    //         requests_count = requests.length
+    //     }
+    // }
 
     $('#add_note').on('click', function () {
         if (request_id.val().length !== 0 && request_text_note.val().length !== 0) {

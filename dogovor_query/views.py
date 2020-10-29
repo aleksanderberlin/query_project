@@ -172,7 +172,6 @@ def add_note(request):
     return HttpResponse(json.dumps(response), content_type='application/json', status=status)
 
 
-
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_query', raise_exception=True)
 def get_requests(request):
@@ -301,12 +300,16 @@ class RequestWizard(SessionWizardView):
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
         if step == 'user':
-            if 'user_uid' in self.request.COOKIES and self.initial_dict['user']['user_checked'] is False:
-                print('checking user init')
-                user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
-                if user:
-                    initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
-                                    'birthday': user[0].birthday, 'user_checked': True})
+            if 'user_uid' in self.request.COOKIES:
+                if self.initial_dict['user']['user_checked'] is False:
+                    user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
+                    if user:
+                        initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
+                                        'birthday': user[0].birthday, 'user_checked': True})
+                    else:
+                        initial.update({'fio': '', 'phone_number': '', 'birthday': '', 'user_checked': False})
+            else:
+                initial.update({'fio': '', 'phone_number': '', 'birthday': '', 'user_checked': False})
         return initial
 
     def done(self, form_list, **kwargs):

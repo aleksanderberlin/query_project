@@ -18,6 +18,13 @@
                 Электронная очередь Договорного отдела
             </div>
         </div>
+        {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger mt-2 mb-2" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+        {% endif %}
         {% if current_status == 'created' or current_status == 'postponed' %}
             <div id="attention_info" class="card mt-2 mb-2">
                 <div class="card-header">

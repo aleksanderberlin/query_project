@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
@@ -8,6 +8,7 @@ import uuid
 import datetime
 from django.utils import timezone
 import json
+from django.contrib import messages
 
 FORMS = [
     ('user', RequestFormUser),
@@ -312,12 +313,29 @@ class RequestWizard(SessionWizardView):
     def done(self, form_list, **kwargs):
         data = self.get_all_cleaned_data()
         user, created = User.objects.get_or_create(first_name=data['first_name'], second_name=data['second_name'],
-                                                   last_name=data['last_name'], phone_number=data['phone_number'],
-                                                   birthday=data['birthday'])
+                                                   last_name=data['last_name'], birthday=data['birthday'])
+
         if created is True:
             user.user_uid = uuid.uuid4().hex
             user.save()
-
+        else:
+            if user.phone_number != data['phone_number']:
+                user.phone_number = data['phone_number']
+                user.save()
+            today_requests = Request.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
+                                                    user=user)
+            today_requests_statuses = RequestLog.objects.filter(removed_at__isnull=True, request__in=today_requests).\
+                order_by('request_id', '-created_at').distinct('request')
+            active_today_requests = RequestLog.objects.filter(pk__in=today_requests_statuses,
+                                                              status__in=['created', 'activated', 'processing',
+                                                                          'postponed'])
+            if active_today_requests:
+                response = redirect('query_position')
+                response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
+                                                                        datetime.timedelta(days=3650)))
+                messages.error(self.request, 'У Вас уже есть активная заявка. Отмените ее или ожидайте ее закрытия.')
+                return response
+        
         if data['question'] == 'Другое':
             data['question'] = data['other_text']
 
@@ -343,6 +361,6 @@ class RequestWizard(SessionWizardView):
         request_log.save()
         response = redirect('query_position')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
-                                                                datetime.timedelta(days=365)))
+                                                                datetime.timedelta(days=3650)))
         self.initial_dict['user']['user_checked'] = False
         return response

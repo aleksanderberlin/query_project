@@ -23,6 +23,11 @@ $(document).ready(function () {
         "fnInitComplete": function () {
             var myCustomScrollbar = document.querySelector('#requests_table_wrapper .dataTables_scrollBody');
             var ps = new PerfectScrollbar(myCustomScrollbar);
+            if (request_id.val().length > 0) {
+                    requests_table.select.style('api')
+                } else {
+                    requests_table.select.style('single')
+                }
         },
         "scrollY": 450,
         "ajax": {
@@ -100,7 +105,7 @@ $(document).ready(function () {
         ],
         dom: 'Bfrtip',
         select: {
-            style: 'single'
+            style: 'single',
         },
         buttons: [
             {
@@ -124,7 +129,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             403: function () {
@@ -132,7 +137,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже закрыта. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             409: function () {
@@ -140,7 +145,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже активирована, возможно, другим специалистом.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                                 dt.rows('.selected').remove().draw(false);
                             }
@@ -150,8 +155,9 @@ $(document).ready(function () {
                                 type: 'success',
                                 title: 'Статус заявки изменен',
                                 content: 'Заявка успешно активирована, человек приглашен в кабинет.',
-                                delay: 5000,
+                                delay: 7500,
                             });
+                            dt.select.style('api')
                             request_id.val(data[0]['pk'])
                             request_status.val('activated')
                             request_current_status_created_at.val(data[0]['created_at'])
@@ -195,7 +201,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             403: function () {
@@ -203,7 +209,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже закрыта. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             409: function () {
@@ -211,7 +217,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже в работе. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             }
                         },
@@ -220,8 +226,9 @@ $(document).ready(function () {
                                 type: 'success',
                                 title: 'Статус заявки изменен',
                                 content: 'Работа по заявке успешно начата.',
-                                delay: 5000,
+                                delay: 7500,
                             });
+                            dt.select.style('api')
                             request_status.val('processing')
                             request_current_status_created_at.val(response.changed_at)
                             span_status_text.removeClass()
@@ -246,9 +253,11 @@ $(document).ready(function () {
                     }
                 },
                 action: function (e, dt, node, config) {
-                    let request_pk = request_id.val()
+                    let request_pk = null
                     if (request_id.val().length === 0) {
                         request_pk = dt.rows('.selected').data()[0]['pk']
+                    } else {
+                        request_pk = request_id.val()
                     }
                     $.ajax({
                         type: 'GET',
@@ -262,7 +271,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             403: function () {
@@ -270,7 +279,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже закрыта. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             409: function () {
@@ -278,7 +287,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже отменена. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             }
                         },
@@ -287,11 +296,12 @@ $(document).ready(function () {
                                 type: 'success',
                                 title: 'Статус заявки изменен',
                                 content: 'Заявка успешно отменена.',
-                                delay: 5000,
+                                delay: 7500,
                             });
                             if (request_id.val().length === 0) {
                                 dt.rows('.selected').remove().draw(false);
                             }
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -335,7 +345,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             403: function () {
@@ -343,7 +353,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже закрыта. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             409: function () {
@@ -351,7 +361,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже отложена. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             }
                         },
@@ -360,8 +370,9 @@ $(document).ready(function () {
                                 type: 'success',
                                 title: 'Статус заявки изменен',
                                 content: 'Заявка успешно перемещена в отложенные. Для повторного вызова нажмите кнопку "Показать отложенные заявки"',
-                                delay: 5000,
+                                delay: 7500,
                             });
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -405,7 +416,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             403: function () {
@@ -413,7 +424,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже закрыта. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             },
                             409: function () {
@@ -421,7 +432,7 @@ $(document).ready(function () {
                                     type: 'error',
                                     title: 'Ошибка',
                                     content: 'Заявка уже завершена. Обновите страницу.',
-                                    delay: 5000,
+                                    delay: 7500,
                                 });
                             }
                         },
@@ -430,8 +441,9 @@ $(document).ready(function () {
                                 type: 'success',
                                 title: 'Статус заявки изменен',
                                 content: 'Заявка успешно обработана и закрыта.',
-                                delay: 5000,
+                                delay: 7500,
                             });
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -469,7 +481,7 @@ $(document).ready(function () {
                             type: 'error',
                             title: 'Ошибка',
                             content: 'Попробуйте обновить страницу.',
-                            delay: 5000,
+                            delay: 7500,
                         });
                     }
                 }
@@ -503,7 +515,7 @@ $(document).ready(function () {
                             type: 'success',
                             title: 'Успех',
                             content: 'Вы вернулись к просмотру активных заявок.',
-                            delay: 5000,
+                            delay: 7500,
                         });
                     }
                 }
@@ -572,7 +584,7 @@ $(document).ready(function () {
                             type: 'error',
                             title: 'Ошибка',
                             content: 'Произошла ошибка запроса. Обратитесь к администратору.',
-                            delay: 5000,
+                            delay: 7500,
                         });
                     }
                 },
@@ -581,7 +593,7 @@ $(document).ready(function () {
                         type: 'success',
                         title: 'Успешно',
                         content: 'Примечание успешно добавлено.',
-                        delay: 5000,
+                        delay: 7500,
                     });
                     if (request_notes.text().length > 0) {
                         request_notes.text(request_notes.text() + ";" + response.note_text)
@@ -597,7 +609,7 @@ $(document).ready(function () {
                 type: 'error',
                 title: 'Ошибка',
                 content: 'Попробуйте обновить страницу.',
-                delay: 5000,
+                delay: 7500,
             });
         }
     })

@@ -1,37 +1,18 @@
 from django import forms
 import datetime
 from django.core.exceptions import ValidationError
-# from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-# from .models import Specialist
-
-
-# class CustomSpecialistCreationForm(UserCreationForm):
-#     class Meta(UserCreationForm):
-#         model = Specialist
-#         fields = '__all__'
-#
-#
-# class CustomSpecialistChangeForm(UserChangeForm):
-#     class Meta:
-#         model = Specialist
-#         fields = '__all__'
-#
-#
-# class LoginForm(forms.Form):
-#     username = forms.CharField(label='Имя пользователя',
-#                                widget=forms.TextInput(attrs={'class': 'form-control',
-#                                                              'placeholder': 'Введите имя пользователя'}))
-#     password = forms.CharField(label='Пароль',
-#                                widget=forms.PasswordInput(attrs={'class': 'form-control',
-#                                                                  'placeholder': 'Введите пароль'}))
 
 
 class RequestFormUser(forms.Form):
     CHOICES = [('university', 'Обучение в университете'),
                ('hostel', 'Проживание в общежитии')]
 
-    fio = forms.CharField(max_length=150, label='ФИО Обучающегося', widget=forms.TextInput(attrs={
+    last_name = forms.CharField(max_length=50, label='Фамилия Обучающегося', widget=forms.TextInput(attrs={
         'class': 'form-control'}))
+    first_name = forms.CharField(max_length=50, label='Имя Обучающегося', widget=forms.TextInput(attrs={
+        'class': 'form-control'}))
+    second_name = forms.CharField(max_length=50, label='Отчество Обучающегося', widget=forms.TextInput(attrs={
+        'class': 'form-control'}), required=False)
     birthday = forms.DateField(label='Дата рождения', widget=forms.DateInput(attrs={
         'class': 'form-control', 'data-mask': '00.00.0000', 'data-mask-clearifnotmatch': 'true'}))
     phone_number = forms.CharField(max_length=17, label='Номер телефона', widget=forms.TextInput(attrs={
@@ -46,15 +27,29 @@ class RequestFormUser(forms.Form):
             raise ValidationError('Некорретная дата рождения')
         return birthday
 
-    def clean_fio(self):
-        fio = self.cleaned_data['fio']
-        splitted_fio = fio.split(' ')
-        for word in splitted_fio:
+    def clean_last_name(self):
+        last_name = self.cleaned_data['last_name']
+        splitted_last_name = last_name.split(' ')
+        for word in splitted_last_name:
             if not word.isalpha():
-                raise ValidationError('Некорретное ФИО')
-        if len(splitted_fio) < 2:
-            raise ValidationError('Некорретное ФИО')
-        return fio
+                raise ValidationError('Некорретная фамилия')
+        return last_name
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data['first_name']
+        splitted_last_name = first_name.split(' ')
+        for word in splitted_last_name:
+            if not word.isalpha():
+                raise ValidationError('Некорретное имя')
+        return first_name
+
+    def clean_second_name(self):
+        second_name = self.cleaned_data['second_name']
+        splitted_last_name = second_name.split(' ')
+        for word in splitted_last_name:
+            if not word.isalpha():
+                raise ValidationError('Некорретное имя')
+        return second_name
 
 
 class RequestFormSubjectHostel(forms.Form):
@@ -69,20 +64,11 @@ class RequestFormSubjectHostel(forms.Form):
 
     question = forms.ChoiceField(choices=REQUEST_CHOICES, widget=forms.RadioSelect(),
                                          label='Тема обращения')
-    hostel_privileges = forms.CharField(max_length=150, label='Льготы', widget=forms.TextInput(attrs={
-        'class': 'form-control'}), required=False)
-    temporary_move = forms.BooleanField(label='Выезжали ли Вы на временный выезд из общежития?', required=False,
+    hostel_privileges = forms.BooleanField(label='Имеете ли Вы льготы?', required=False,
                                         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
 
     other_text = forms.CharField(max_length=150, label='Другое', required=False, widget=forms.TextInput(attrs={
         'class': 'form-control form-control-sm', 'readonly': 'True'}))
-
-
-class RequestFormSubjectHostelMove(forms.Form):
-    hostel_date_moveout = forms.DateField(label='Дата выезда из общежития', widget=forms.DateInput(attrs={
-        'class': 'form-control', 'data-mask': '00.00.0000', 'data-mask-clearifnotmatch': 'true'}))
-    hostel_date_movein = forms.DateField(label='Дата возврата в общежитие', widget=forms.DateInput(attrs={
-        'class': 'form-control', 'data-mask': '00.00.0000', 'data-mask-clearifnotmatch': 'true'}))
 
 
 class RequestFormSubjectUniversity(forms.Form):

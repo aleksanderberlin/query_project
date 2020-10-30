@@ -4,21 +4,22 @@ from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
 from .models import *
-from django.contrib.auth import authenticate, login, logout
 import uuid
 import datetime
 from django.utils import timezone
 import json
 
-FORMS = [('user', RequestFormUser),
-         ('university_subject', RequestFormSubjectUniversity),
-         ('hostel_subject', RequestFormSubjectHostel),
-         ('hostel_subject_move', RequestFormSubjectHostelMove)]
+FORMS = [
+    ('user', RequestFormUser),
+    ('university_subject', RequestFormSubjectUniversity),
+    ('hostel_subject', RequestFormSubjectHostel),
+]
 
-TEMPLATES = {'user': 'dogovor_query/request_templates/user_form.html',
-             'university_subject': 'dogovor_query/request_templates/university_form_subject.html',
-             'hostel_subject': 'dogovor_query/request_templates/hostel_form_subject.html',
-             'hostel_subject_move': 'dogovor_query/request_templates/hostel_form_move.html'}
+TEMPLATES = {
+    'user': 'dogovor_query/request_templates/user_form.html',
+    'university_subject': 'dogovor_query/request_templates/university_form_subject.html',
+    'hostel_subject': 'dogovor_query/request_templates/hostel_form_subject.html',
+}
 
 
 def split_fio(fio):
@@ -197,8 +198,9 @@ def get_requests(request):
                               'birthday': log.request.user.birthday.strftime('%d.%m.%Y'),
                               'phone_number': log.request.user.phone_number, 'type': request_types[log.request.type],
                               'question': log.request.question, 'status': log.status,
-                              'created_at': log.request.created_at.strftime('%d.%m.%Y %H:%M:%S')} for log in
-                             request_logs],
+                              'created_at': log.request.created_at.strftime('%d.%m.%Y %H:%M:%S'),
+                              'notes': ';'.join([text[0] for text in log.request.note_set.all().values_list('text')])}
+                             for log in request_logs],
                     'info': {
                         'postponed_amount': postponed_amount,
                     }}
@@ -206,7 +208,9 @@ def get_requests(request):
         response = {'data': [[log.request.pk, log.request.get_query_number(), log.request.user.__str__(),
                               log.request.user.birthday.strftime('%d.%m.%Y'), log.request.user.phone_number,
                               request_types[log.request.type], log.request.question,
-                              log.request.created_at.strftime('%d.%m.%Y %H:%M:%S')] for log in request_logs]}
+                              log.request.created_at.strftime('%d.%m.%Y %H:%M:%S'),
+                              ';'.join([text[0] for text in log.request.note_set.all().values_list('text')])]
+                             for log in request_logs]}
     else:
         response = []
     json_dump = json.dumps(response)
@@ -269,20 +273,10 @@ def is_university_request(wizard):
             return False
 
 
-def temporary_move(wizard):
-    cleaned_data = wizard.get_cleaned_data_for_step('hostel_subject') or {}
-    if 'temporary_move' in cleaned_data:
-        if cleaned_data['temporary_move'] is True:
-            return True
-        else:
-            return False
-
-
 class RequestWizard(SessionWizardView):
     condition_dict = {
         'university_subject': is_university_request,
         'hostel_subject': is_hostel_request,
-        'hostel_subject_move': temporary_move
     }
 
     initial_dict = {
@@ -304,21 +298,22 @@ class RequestWizard(SessionWizardView):
                 if self.initial_dict['user']['user_checked'] is False:
                     user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
                     if user:
-                        initial.update({'fio': user[0].__str__(), 'phone_number': user[0].phone_number,
+                        initial.update({'last_name': user[0].last_name, 'first_name': user[0].first_name,
+                                        'second_name': user[0].second_name, 'phone_number': user[0].phone_number,
                                         'birthday': user[0].birthday, 'user_checked': True})
                     else:
-                        initial.update({'fio': '', 'phone_number': '', 'birthday': '', 'user_checked': False})
+                        initial.update({'last_name': '', 'first_name': '', 'second_name': '', 'phone_number': '',
+                                        'birthday': '', 'user_checked': True})
             else:
-                initial.update({'fio': '', 'phone_number': '', 'birthday': '', 'user_checked': False})
+                initial.update({'last_name': '', 'first_name': '', 'second_name': '', 'phone_number': '',
+                                'birthday': '', 'user_checked': False})
         return initial
 
     def done(self, form_list, **kwargs):
         data = self.get_all_cleaned_data()
-        splitted_fio = split_fio(data['fio'])
-        user, created = User.objects.get_or_create(first_name=splitted_fio['first_name'],
-                                                   second_name=splitted_fio['second_name'],
-                                                   last_name=splitted_fio['last_name'],
-                                                   phone_number=data['phone_number'], birthday=data['birthday'])
+        user, created = User.objects.get_or_create(first_name=data['first_name'], second_name=data['second_name'],
+                                                   last_name=data['last_name'], phone_number=data['phone_number'],
+                                                   birthday=data['birthday'])
         if created is True:
             user.user_uid = uuid.uuid4().hex
             user.save()
@@ -327,14 +322,11 @@ class RequestWizard(SessionWizardView):
             data['question'] = data['other_text']
 
         if data['type'] == 'hostel':
-            if data['temporary_move'] is True:
-                data['question'] += ';Временный выезд: ' + data['hostel_date_moveout'].strftime('%d.%m.%Y') + '-' + \
-                                    data['hostel_date_movein'].strftime('%d.%m.%Y')
             if data['hostel_privileges']:
-                data['question'] += ';Льготы: ' + data['hostel_privileges']
+                data['question'] += ';Есть льготы '
 
-        extra_prop = ['fio', 'phone_number', 'user_uid', 'temporary_move', 'birthday', 'other_text',
-                      'hostel_date_moveout', 'hostel_date_movein', 'hostel', 'hostel_privileges']
+        extra_prop = ['last_name', 'first_name', 'second_name', 'phone_number', 'user_uid', 'temporary_move',
+                      'birthday', 'other_text', 'hostel', 'hostel_privileges']
         for prop in extra_prop:
             if prop in data:
                 data.pop(prop)

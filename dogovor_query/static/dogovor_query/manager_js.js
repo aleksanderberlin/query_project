@@ -16,6 +16,7 @@ $(document).ready(function () {
     let add_note_modal = $('#add_note_modal')
     let requests_count = 0
     let is_first_ajax_call = 1
+    let request_notes = $('#request_notes')
 
     let requests_table = $('#requests_table').DataTable({
         "paging": false,
@@ -80,18 +81,19 @@ $(document).ready(function () {
         },
         columns: [
             {data: 'pk'},
-            {data: 'number', width: '7%'},
+            {data: 'number', width: '10%'},
             {data: 'fio', width: '20%'},
-            {data: 'birthday', width: '13%'},
+            {data: 'birthday', width: '15%'},
             {data: 'phone_number', width: '15%'},
-            {data: 'type', width: '15%'},
+            {data: 'type', width: '10%'},
             {data: 'question', width: '30%'},
             {data: 'created_at'},
             {data: 'status'},
+            {data: 'notes'},
         ],
         "columnDefs": [
             {
-                "targets": [0, 7, 8],
+                "targets": [0, 7, 8, 9],
                 "visible": false,
                 "searchable": false
             }
@@ -162,6 +164,7 @@ $(document).ready(function () {
                             current_client_phone_number.text(data[0]['phone_number'])
                             current_client_request_type.text(data[0]['type'])
                             current_client_request_question.text(data[0]['question'])
+                            request_notes.text(data[0]['notes'])
                             timer_change_state('start', response.changed_at)
                             dt.rows('.selected').remove().draw(false);
                             dt.buttons([0, 4]).disable()
@@ -300,6 +303,7 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
@@ -369,6 +373,7 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
@@ -438,6 +443,7 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
@@ -481,11 +487,24 @@ $(document).ready(function () {
                         current_request_type = 'postponed'
                         dt.ajax.url('api/requests/get?status=postponed').load()
                         $(node).text('Вернуться к активным заявкам')
+                        $.toast({
+                            type: 'warning',
+                            title: 'Внимание',
+                            content: 'Таблица переключена в режим отображения отложенных заявок. ' +
+                                'Для возврата к активным заявкам нажмите на кнопку "Вернуться к активным заявкам".',
+                            delay: 10000,
+                        });
                     } else if (dt.ajax.url().endsWith('postponed')) {
                         current_request_type = 'created'
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')
                         $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")
+                        $.toast({
+                            type: 'success',
+                            title: 'Успех',
+                            content: 'Вы вернулись к просмотру активных заявок.',
+                            delay: 5000,
+                        });
                     }
                 }
             },
@@ -537,19 +556,6 @@ $(document).ready(function () {
     timer.addEventListener('reset', function (e) {
         span_timer.text(timer.getTimeValues().toString());
     });
-    //
-    // function sound_notification_on_requests() {
-    //     if (requests_table.ajax.url().endsWith('created')) {
-    //         if (requests_count < requests.length && is_first_ajax_call === 0) {
-    //             let audioElement = document.createElement('audio');
-    //             audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/notification-sounds/just-maybe-577/download/file-sounds-1124-just-maybe.mp3');
-    //             let promise = audioElement.play()
-    //         } else if (is_first_ajax_call === 1) {
-    //             is_first_ajax_call = 0
-    //         }
-    //         requests_count = requests.length
-    //     }
-    // }
 
     $('#add_note').on('click', function () {
         if (request_id.val().length !== 0 && request_text_note.val().length !== 0) {
@@ -577,7 +583,6 @@ $(document).ready(function () {
                         content: 'Примечание успешно добавлено.',
                         delay: 5000,
                     });
-                    let request_notes = $('#request_notes')
                     if (request_notes.text().length > 0) {
                         request_notes.text(request_notes.text() + ";" + response.note_text)
                     } else {

@@ -57,23 +57,15 @@
         <div class="card-header">
             <label for="id_hostel-hostel_privileges">{{ wizard.form.hostel_privileges.label }}</label>
         </div>
-        <div class="card-body">
-            {{ wizard.form.hostel_privileges }}
-        </div>
-    </div>
-    <div class="card mt-2 mb-2">
-        <div class="card-header">
-            Временный выезд
-        </div>
         <div class="card-body pl-0 pr-0">
             <div class="form-check mt-2 mb-2 mr-1">
                 <div class="pretty p-bigger p-pulse p-curve p-toggle">
-                    {{ wizard.form.temporary_move }}
+                    {{ wizard.form.hostel_privileges }}
                     <div class="state p-success p-on">
-                        <label class="form-check-label">Выезжал из общежития</label>
+                        <label class="form-check-label">Имею социальные льготы</label>
                     </div>
                     <div class="state p-danger p-off">
-                        <label class="form-check-label">Не выезжал из общежития</label>
+                        <label class="form-check-label">Не имею социальных льгот</label>
                     </div>
                 </div>
             </div>

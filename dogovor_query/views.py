@@ -4,12 +4,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
 from .models import *
-import uuid
 import datetime
 from django.utils import timezone
 import json
 from django.contrib import messages
-from django.db import IntegrityError
 
 FORMS = [
     ('user', RequestFormUser),
@@ -304,14 +302,7 @@ class RequestWizard(SessionWizardView):
 
         if created is True:
             user.phone_number = data['phone_number']
-            is_uid_unique = False
-            while is_uid_unique is False:
-                try:
-                    user.user_uid = uuid.uuid4().hex
-                    user.save()
-                    is_uid_unique = True
-                except IntegrityError:
-                    pass
+            user.save()
         else:
             if user.phone_number != data['phone_number']:
                 user.phone_number = data['phone_number']

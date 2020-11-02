@@ -1,9 +1,10 @@
 from django.db import models
 from django.conf import settings
+import uuid
 
 
 class User(models.Model):
-    user_uid = models.CharField(max_length=200, verbose_name='Идентификатор пользователя', unique=True)
+    user_uid = models.UUIDField(primary_key=False, default=uuid.uuid4, verbose_name='Идентификатор')
     first_name = models.CharField(max_length=40, verbose_name='Имя')
     second_name = models.CharField(max_length=40, verbose_name='Отчество', null=True, blank=True)
     last_name = models.CharField(max_length=40, verbose_name='Фамилия')

@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('login', specialist_login, name='specialist_login'),
     path('logout', specialist_logout, name='specialist_logout'),
+    path('settings', specialist_settings, name='specialist_settings')
 ]

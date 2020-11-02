@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% block topbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Электронная очередь Договорного отдела СПбГУТ</a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <a class="navbar-brand" href="{% url 'query_list' %}">Электронная очередь Договорного отдела</a>
+        <div class="collapse navbar-collapse" id="navbarButtons">
             <ul class="navbar-nav mr-auto">
                 {% with url_name=request.resolver_match.url_name %}
                     <li class="nav-item {% if url_name == 'search' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'query_list' %}">Поиск</a>
+                        <a class="nav-link" href="#">Поиск</a>
                     </li>
                     {% if perms.dogovor_query.view_query %}
                         <li class="nav-item {% if url_name == 'query_list' %}active{% endif %}">
@@ -22,11 +22,13 @@
             </ul>
         </div>
         <div class="dropdown">
-            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton"
+            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownUsername"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ user.get_full_name }}
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{% url 'specialist_settings' %}">Настройки</a>
+{#                <a class="dropdown-item" href="{% url 'specialist_settings' %}">Параметры сервера</a>#}
                 <a class="dropdown-item" href="{% url 'specialist_logout' %}">Выйти</a>
             </div>
         </div>

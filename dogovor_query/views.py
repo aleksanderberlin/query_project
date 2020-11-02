@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
@@ -34,71 +34,61 @@ def split_fio(fio):
 
 def main_page(request):
     if 'user_uid' in request.COOKIES:
-        return redirect('query_position')
-    else:
-        return redirect('query_form')
-
-
-def query_position(request):
-    if 'user_uid' in request.COOKIES:
-        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
-        if user:
-            context = {}
-            user = user[0]
-            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
-                                                  created_at__gte=timezone.now().date())
-            if user_request:
-                user_request = user_request.latest()
-                user_request_status = user_request.requestlog_set
-                if user_request_status:
-                    user_request_status = user_request_status.latest()
-                    if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
-                        all_request_logs = \
-                            RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
-                                order_by('request_id', '-created_at').distinct('request')
-
-                        created_postponed_amount = \
-                            RequestLog.objects.filter(pk__in=all_request_logs,
-                                                      status__in=['created', 'processing', 'activated'],
-                                                      request__created_at__lte=user_request.created_at).count()
-                        context['fio'] = user.__str__()
-                        if user_request_status.specialist:
-                            context['table_number'] = user_request_status.specialist.table_number
-                            context['specialist_name'] = user_request_status.specialist.get_full_name()
-                        context['query_number'] = user_request.get_query_number()
-                        context['current_status'] = user_request_status.status
-                        context['people_before_amount'] = max(created_postponed_amount - 1, 0)
-                        return render(request, 'dogovor_query/user_waiting.html', context)
-    return redirect('query_form')
-
-
-def get_query_position(request):
-    response = {'user_uid': '', 'query_number': '', 'current_status': '', 'people_before': ''}
-    if 'user_uid' in request.COOKIES:
-        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
-        if user:
-            response['user_uid'] = request.COOKIES['user_uid']
-            user = user[0]
-            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
-                                                  created_at__gte=timezone.now().date())
-            if user_request:
-                user_request = user_request.latest()
-                user_request_status = user_request.requestlog_set.latest()
-                all_request_logs = \
-                    RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+        user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
+        context = {}
+        if user_request:
+            user_request = user_request.latest()
+            user_request_status = user_request.requestlog_set
+            if user_request_status:
+                user_request_status = user_request_status.latest()
+                if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
+                    request_logs = RequestLog.objects.filter(removed_at__isnull=True,
+                                                             created_at__gte=timezone.now().date()).\
                         order_by('request_id', '-created_at').distinct('request')
 
-                created_postponed_amount = \
-                    RequestLog.objects.filter(pk__in=all_request_logs,
-                                              status__in=['created', 'processing', 'activated'],
-                                              request__created_at__lte=user_request.created_at).count()
-                response['fio'] = user.__str__()
-                if user_request_status.specialist:
-                    response['table_number'] = user_request_status.specialist.table_number
-                    response['specialist_name'] = user_request_status.specialist.get_full_name()
-                response['query_number'] = user_request.get_query_number()
-                response['current_status'] = user_request_status.status
-                response['people_before'] = max(created_postponed_amount - 1, 0)
+                    people_before_amount = RequestLog.objects.filter(pk__in=request_logs,
+                                                                     status__in=['created', 'processing', 'activated'],
+                                                                     request__created_at__lte=user_request.created_at).\
+                        count()
+
+                    context['user_uid'] = user.user_uid
+                    context['fio'] = user.__str__()
+                    if user_request_status.specialist:
+                        context['room'] = user_request_status.specialist.room
+                        context['table_number'] = user_request_status.specialist.table_number
+                        context['specialist_name'] = user_request_status.specialist.get_full_name()
+                    context['query_number'] = user_request.get_query_number()
+                    context['current_status'] = user_request_status.status
+                    context['people_before_amount'] = max(people_before_amount - 1, 0)
+                    return render(request, 'dogovor_query/user_waiting.html', context)
+    return RequestWizard.as_view()(request)
+
+
+def api_query_position(request):
+    response = {'user_uid': '', 'query_number': '', 'current_status': '', 'people_before': ''}
+    if 'user_uid' in request.COOKIES:
+        user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        response['user_uid'] = request.COOKIES['user_uid']
+        user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                              created_at__gte=timezone.now().date())
+        if user_request:
+            user_request = user_request.latest()
+            user_request_status = user_request.requestlog_set.latest()
+            request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()) \
+                .order_by('request_id', '-created_at').distinct('request')
+
+            people_before_amount = RequestLog.objects.filter(pk__in=request_logs,
+                                                             status__in=['created', 'processing', 'activated'],
+                                                             request__created_at__lte=user_request.created_at).count()
+            response['fio'] = user.__str__()
+            if user_request_status.specialist:
+                response['room'] = user_request_status.specialist.room
+                response['table_number'] = user_request_status.specialist.table_number
+                response['specialist_name'] = user_request_status.specialist.get_full_name()
+            response['query_number'] = user_request.get_query_number()
+            response['current_status'] = user_request_status.status
+            response['people_before'] = max(people_before_amount - 1, 0)
     return HttpResponse(json.dumps(response))
 
 
@@ -106,24 +96,21 @@ def user_cancel_request(request):
     response = {'user_uid': '', 'query_number': '', 'current_status': '', 'changed': False}
     status = 400
     if 'user_uid' in request.COOKIES:
-        user = User.objects.filter(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
-        if user:
-            response['user_uid'] = request.COOKIES['user_uid']
-            user = user[0]
-            user_request = Request.objects.filter(user=user, removed_at__isnull=True,
-                                                  created_at__gte=timezone.now().date())
-            if user_request:
-                user_request = user_request.latest()
-                user_request_status = user_request.requestlog_set.latest()
-                response['query_number'] = user_request.get_query_number()
-                if user_request_status.status in ['created', 'postponed']:
-                    new_status = RequestLog(request=user_request, status='cancelled')
-                    new_status.save()
-                    response['changed'] = True
-                    status = 201
-                else:
-                    status = 403
-                response['current_status'] = user_request_status.status
+        user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        response['user_uid'] = request.COOKIES['user_uid']
+        user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
+        if user_request:
+            user_request = user_request.latest()
+            user_request_status = user_request.requestlog_set.latest()
+            response['query_number'] = user_request.get_query_number()
+            if user_request_status.status in ['created', 'postponed']:
+                new_status = RequestLog(request=user_request, status='cancelled')
+                new_status.save()
+                response['changed'] = True
+                status = 201
+            else:
+                status = 403
+            response['current_status'] = user_request_status.status
     return HttpResponse(json.dumps(response), status=status)
 
 
@@ -317,6 +304,7 @@ class RequestWizard(SessionWizardView):
 
         if created is True:
             user.user_uid = uuid.uuid4().hex
+            user.phone_number = data['phone_number']
             user.save()
         else:
             if user.phone_number != data['phone_number']:
@@ -324,18 +312,18 @@ class RequestWizard(SessionWizardView):
                 user.save()
             today_requests = Request.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
                                                     user=user)
-            today_requests_statuses = RequestLog.objects.filter(removed_at__isnull=True, request__in=today_requests).\
+            today_requests_statuses = RequestLog.objects.filter(removed_at__isnull=True, request__in=today_requests). \
                 order_by('request_id', '-created_at').distinct('request')
             active_today_requests = RequestLog.objects.filter(pk__in=today_requests_statuses,
                                                               status__in=['created', 'activated', 'processing',
                                                                           'postponed'])
             if active_today_requests:
-                response = redirect('query_position')
+                response = redirect('main_page')
                 response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                         datetime.timedelta(days=3650)))
                 messages.error(self.request, 'У Вас уже есть активная заявка. Отмените ее или ожидайте ее закрытия.')
                 return response
-        
+
         if data['question'] == 'Другое':
             data['question'] = data['other_text']
 
@@ -355,11 +343,11 @@ class RequestWizard(SessionWizardView):
         else:
             new_number = 0
 
-        request = Request(user=user, number=new_number, **data)
-        request.save()
-        request_log = RequestLog(request=request, status=RequestLog.RequestStatus.CREATED)
+        new_request = Request(user=user, number=new_number, **data)
+        new_request.save()
+        request_log = RequestLog(request=new_request, status=RequestLog.RequestStatus.CREATED)
         request_log.save()
-        response = redirect('query_position')
+        response = redirect('main_page')
         response.set_cookie('user_uid', user.user_uid, expires=(datetime.datetime.now() +
                                                                 datetime.timedelta(days=3650)))
         self.initial_dict['user']['user_checked'] = False

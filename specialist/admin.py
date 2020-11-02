@@ -9,9 +9,9 @@ class CustomSpecialistAdmin(UserAdmin):
     add_form = CustomSpecialistCreationForm
     form = CustomSpecialistChangeForm
     model = Specialist
-    list_display = UserAdmin.list_display + ('table_number', )
+    list_display = UserAdmin.list_display + ('room', 'table_number',)
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('table_number',)}),
+        (None, {'fields': ('room', 'table_number',)}),
     )
 
 

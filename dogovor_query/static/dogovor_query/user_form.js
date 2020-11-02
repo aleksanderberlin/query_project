@@ -27,7 +27,7 @@ $(document).ready(function () {
                     span_user_status.addClass('badge badge-success blob')
                     div_card_welcome.removeClass('bg-info d-none')
                     div_card_welcome.addClass('bg-success')
-                    div_card_welcome.find('div:nth-child(1)').html('Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер <span class="span_info" id="span_specialist_table_number"></span> к специалисту <span class="span_info" id="span_specialist_name"></span>')
+                    div_card_welcome.find('div:nth-child(1)').html('Ваша очередь подошла! Проходите в кабинет <span class="span_info" id="span_specialist_room"></span> к столу номер <span class="span_info" id="span_specialist_table_number"></span> к специалисту <span class="span_info" id="span_specialist_name"></span>')
                     div_card_welcome.show()
                     div_card_people_before.hide()
                     div_card_cancel_request.hide()
@@ -77,6 +77,7 @@ $(document).ready(function () {
                 $('#span_user_query_number').text(data.query_number)
                 $('#span_user_fio').text(data.fio)
                 $('#span_user_before_amount').text(data.people_before)
+                $('#span_specialist_room').text(data.room)
                 $('#span_specialist_table_number').text(data.table_number)
                 $('#span_specialist_name').text(data.specialist_name)
             }

@@ -24,9 +24,7 @@ urlpatterns = [
     path('manager/api/note/add', add_note, name='add_note'),
     path('manager/api/status/<str:action>/<int:request_pk>', get_update_status, name='get_update_status'),
     path('', main_page, name='main_page'),
-    path('query_form/', RequestWizard.as_view(), name='query_form'),
-    path('query/', query_position, name='query_position'),
-    path('api/query/get', get_query_position, name='user_request_info'),
+    path('api/query/get', api_query_position, name='user_request_info'),
     path('api/request/cancel', user_cancel_request, name='user_cancel_request')
 ]
 

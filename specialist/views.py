@@ -1,15 +1,11 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required, permission_required
-from formtools.wizard.views import SessionWizardView
+from django.contrib.auth.decorators import login_required
 from .forms import *
 from .models import *
 from django.contrib.auth import authenticate, login, logout
-import uuid
-import datetime
-from django.utils import timezone
-import json
+from django.contrib import messages
+from django.db import IntegrityError
+
 
 # Create your views here.
 
@@ -39,6 +35,20 @@ def specialist_login(request):
         else:
             form = LoginForm()
             return render(request, 'specialist/login.html', {'form': form})
+
+
+def specialist_settings(request):
+    if request.method == 'POST':
+        settings_form = SettingsForm(request.POST, instance=request.user)
+        if settings_form.is_valid():
+            settings_form.save()
+            messages.success(request, 'Изменения успешно сохранены.')
+        else:
+            messages.error(request, 'Указанный номер стола занят другим специалистом. Изменения не сохранены.')
+
+    else:
+        settings_form = SettingsForm(instance=request.user)
+    return render(request, 'specialist/settings.html', {'settings_form': settings_form})
 
 
 @login_required(login_url='specialist_login')

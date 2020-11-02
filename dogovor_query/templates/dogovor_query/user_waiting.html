@@ -19,11 +19,13 @@
             </div>
         </div>
         {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-danger mt-2 mb-2" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+            {% for message in messages %}
+                <div class="alert alert-
+                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+                     role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
         {% if current_status == 'created' or current_status == 'postponed' %}
             <div id="attention_info" class="card mt-2 mb-2">
@@ -94,7 +96,9 @@
         {% if current_status == 'activated' %}
             <div id="card_welcome" class="card mt-2 mb-2 text-white bg-success">
                 <div class="card-body pr-0">
-                    Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер
+                    Ваша очередь подошла! Проходите в кабинет <span class="span_info"
+                                                                    id="span_specialist_room">{{ room }}</span> к столу
+                    номер
                     <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
                     к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
                 </div>

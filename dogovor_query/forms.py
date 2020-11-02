@@ -19,7 +19,6 @@ class RequestFormUser(forms.Form):
         'class': 'form-control', 'data-mask': '8 (000) 000-00-00', 'data-mask-clearifnotmatch': 'true'}))
     type = forms.ChoiceField(choices=CHOICES, label='Тип обращения', widget=forms.Select(attrs={
         'class': 'form-control'}))
-    user_uid = forms.CharField(max_length=40, widget=forms.HiddenInput())
 
     def clean_birthday(self):
         birthday = self.cleaned_data['birthday']

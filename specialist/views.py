@@ -4,7 +4,6 @@ from .forms import *
 from .models import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.db import IntegrityError
 
 
 # Create your views here.

@@ -9,6 +9,7 @@ import datetime
 from django.utils import timezone
 import json
 from django.contrib import messages
+from django.db import IntegrityError
 
 FORMS = [
     ('user', RequestFormUser),
@@ -269,7 +270,6 @@ class RequestWizard(SessionWizardView):
 
     initial_dict = {
         'user': {
-            'user_uid': uuid.uuid4().hex,
             'user_checked': False
         },
     }
@@ -303,9 +303,15 @@ class RequestWizard(SessionWizardView):
                                                    last_name=data['last_name'], birthday=data['birthday'])
 
         if created is True:
-            user.user_uid = uuid.uuid4().hex
             user.phone_number = data['phone_number']
-            user.save()
+            is_uid_unique = False
+            while is_uid_unique is False:
+                try:
+                    user.user_uid = uuid.uuid4().hex
+                    user.save()
+                    is_uid_unique = True
+                except IntegrityError:
+                    pass
         else:
             if user.phone_number != data['phone_number']:
                 user.phone_number = data['phone_number']

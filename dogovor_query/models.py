@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class User(models.Model):
-    user_uid = models.CharField(max_length=200, verbose_name='Идентификатор пользователя')
+    user_uid = models.CharField(max_length=200, verbose_name='Идентификатор пользователя', unique=True)
     first_name = models.CharField(max_length=40, verbose_name='Имя')
     second_name = models.CharField(max_length=40, verbose_name='Отчество', null=True, blank=True)
     last_name = models.CharField(max_length=40, verbose_name='Фамилия')

@@ -20,9 +20,7 @@
         </div>
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-
-                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
-                     role="alert">
+                <div class="alert alert-{% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2" role="alert">
                     {{ message }}
                 </div>
             {% endfor %}

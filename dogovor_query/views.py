@@ -32,8 +32,15 @@ def split_fio(fio):
 
 
 def main_page(request):
+    response = RequestWizard.as_view()(request)
     if 'user_uid' in request.COOKIES:
-        user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        try:
+            user = User.objects.get(user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
+        except Exception as e:
+            print(e)
+            response = redirect('main_page')
+            response.delete_cookie('user_uid')
+            return response
         user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
         context = {}
         if user_request:
@@ -43,12 +50,12 @@ def main_page(request):
                 user_request_status = user_request_status.latest()
                 if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
                     request_logs = RequestLog.objects.filter(removed_at__isnull=True,
-                                                             created_at__gte=timezone.now().date()).\
+                                                             created_at__gte=timezone.now().date()). \
                         order_by('request_id', '-created_at').distinct('request')
 
                     people_before_amount = RequestLog.objects.filter(pk__in=request_logs,
                                                                      status__in=['created', 'processing', 'activated'],
-                                                                     request__created_at__lte=user_request.created_at).\
+                                                                     request__created_at__lte=user_request.created_at). \
                         count()
 
                     context['user_uid'] = user.user_uid
@@ -60,8 +67,8 @@ def main_page(request):
                     context['query_number'] = user_request.get_query_number()
                     context['current_status'] = user_request_status.status
                     context['people_before_amount'] = max(people_before_amount - 1, 0)
-                    return render(request, 'dogovor_query/user_waiting.html', context)
-    return RequestWizard.as_view()(request)
+                    response = render(request, 'dogovor_query/user_waiting.html', context)
+    return response
 
 
 def api_query_position(request):
@@ -282,14 +289,17 @@ class RequestWizard(SessionWizardView):
         if step == 'user':
             if 'user_uid' in self.request.COOKIES:
                 if self.initial_dict['user']['user_checked'] is False:
-                    user = User.objects.filter(user_uid=self.request.COOKIES['user_uid'])
-                    if user:
-                        initial.update({'last_name': user[0].last_name, 'first_name': user[0].first_name,
-                                        'second_name': user[0].second_name, 'phone_number': user[0].phone_number,
-                                        'birthday': user[0].birthday, 'user_checked': True})
-                    else:
+                    try:
+                        user = User.objects.get(user_uid=self.request.COOKIES['user_uid'], removed_at__isnull=True)
+                    except Exception as e:
+                        print(e)
                         initial.update({'last_name': '', 'first_name': '', 'second_name': '', 'phone_number': '',
                                         'birthday': '', 'user_checked': True})
+                        return initial
+
+                    initial.update({'last_name': user.last_name, 'first_name': user.first_name,
+                                    'second_name': user.second_name, 'phone_number': user.phone_number,
+                                    'birthday': user.birthday, 'user_checked': True})
             else:
                 initial.update({'last_name': '', 'first_name': '', 'second_name': '', 'phone_number': '',
                                 'birthday': '', 'user_checked': False})

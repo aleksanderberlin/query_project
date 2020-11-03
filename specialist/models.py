@@ -15,3 +15,5 @@ class Specialist(AbstractUser):
         constraints = [
             models.UniqueConstraint(fields=['room', 'table_number'], name='unique_room_table'),
         ]
+        verbose_name = 'Специалист'
+        verbose_name_plural = 'Специалисты'

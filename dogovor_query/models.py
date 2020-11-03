@@ -24,6 +24,8 @@ class User(models.Model):
         permissions = [
             ('search_requests', 'Искать по пользователям')
         ]
+        verbose_name = 'Клиент'
+        verbose_name_plural = 'Клиенты'
 
 
 class Request(models.Model):
@@ -42,7 +44,8 @@ class Request(models.Model):
     class Meta:
         ordering = ['-created_at']
         get_latest_by = 'created_at'
-
+        verbose_name = 'Заявка'
+        verbose_name_plural = 'Заявки'
         permissions = [
             ('view_query', 'Может просматривать список новых заявок'),
             ('create_reports', 'Формировать отчеты'),
@@ -82,6 +85,8 @@ class RequestLog(models.Model):
     class Meta:
         ordering = ['-created_at']
         get_latest_by = 'created_at'
+        verbose_name = 'Статус заявки'
+        verbose_name_plural = 'Статусы заявок'
 
     def __str__(self):
         return str(self.request.pk) + ' - ' + self.status + ' - ' + self.created_at.strftime('%d.%m.%Y %H:%M')
@@ -99,6 +104,8 @@ class Note(models.Model):
     class Meta:
         ordering = ['created_at']
         get_latest_by = 'created_at'
+        verbose_name = 'Примечание'
+        verbose_name_plural = 'Примечания'
 
     def __str__(self):
         return str(self.request_id) + ' - ' + str(self.specialist_id) + ' - ' + self.text

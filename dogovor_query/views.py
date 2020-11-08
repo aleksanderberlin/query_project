@@ -10,7 +10,6 @@ import json
 from django.contrib import messages
 from django.db.models.functions import Concat
 from django.db.models import Value as V
-from django.db.models import Prefetch
 
 FORMS = [
     ('user', RequestFormUser),
@@ -354,6 +353,9 @@ class RequestWizard(SessionWizardView):
 
     def done(self, form_list, **kwargs):
         data = self.get_all_cleaned_data()
+        data['first_name'] = ' '.join(word.capitalize() for word in data['first_name'].split(' '))
+        data['second_name'] = ' '.join(word.capitalize() for word in data['second_name'].split(' '))
+        data['last_name'] = ' '.join(word.capitalize() for word in data['last_name'].split(' '))
         user, created = User.objects.get_or_create(first_name=data['first_name'], second_name=data['second_name'],
                                                    last_name=data['last_name'], birthday=data['birthday'])
 

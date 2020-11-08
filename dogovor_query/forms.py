@@ -90,4 +90,4 @@ class RequestFormSubjectUniversity(forms.Form):
 
 
 class SearchUser(forms.Form):
-    user = forms.IntegerField(label='Клиент', widget=forms.Select(attrs={'class': 'form-control'}))
+    user = forms.IntegerField(label='Клиент', widget=forms.Select(attrs={'class': 'form-control', 'required': True}))

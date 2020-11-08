@@ -8,6 +8,9 @@ import datetime
 from django.utils import timezone
 import json
 from django.contrib import messages
+from django.db.models.functions import Concat
+from django.db.models import Value as V
+from django.db.models import Prefetch
 
 FORMS = [
     ('user', RequestFormUser),
@@ -145,7 +148,7 @@ def index(request):
         context['request_type'] = request_types[current_request_log.request.type]
         context['request_question'] = current_request_log.request.question
         context['notes'] = ';'.join([note.text for note in current_request_log.request.note_set.all()])
-    return render(request, 'dogovor_query/dashboard.html', context)
+    return render(request, 'dogovor_query/manager_query_list.html', context)
 
 
 @login_required(login_url='specialist_login')
@@ -247,6 +250,50 @@ def get_update_status(request, action, request_pk):
     else:
         status = 405
     return HttpResponse(json.dumps(response), content_type='application/json', status=status)
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_query', raise_exception=True)
+def search_requests(request):
+    if request.method == 'POST':
+        search_form = SearchUser(request.POST)
+        if search_form.is_valid():
+            user = User.objects.get(pk=request.POST['user'], removed_at__isnull=True)
+            user_requests = Request.objects.filter(user=user, removed_at__isnull=True). \
+                prefetch_related('requestlog_set', 'requestlog_set__specialist', 'note_set', 'note_set__specialist')
+            return render(request, 'dogovor_query/manager_search_requests.html', {'form': search_form,
+                                                                                  'requests': user_requests,
+                                                                                  'client': user})
+    else:
+        search_form = SearchUser()
+        return render(request, 'dogovor_query/manager_search_requests.html', {'form': search_form})
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_query', raise_exception=True)
+def manage_user(request, action):
+    if action == 'get':
+        if 'fio' in request.GET:
+            users = User.objects.annotate(fio=Concat('last_name', V(' '), 'first_name', V(' '), 'second_name')). \
+                filter(fio__icontains=request.GET['fio'], removed_at__isnull=True)
+            response = [{'pk': user.pk, 'last_name': user.last_name, 'first_name': user.first_name,
+                         'second_name': user.second_name, 'fio': user.__str__(),
+                         'birthday': user.birthday.strftime('%d.%m.%Y'), 'phone_number': user.phone_number}
+                        for user in users]
+            return HttpResponse(json.dumps(response))
+        elif 'pk' in request.GET:
+            user = get_object_or_404(User, pk=request.GET['pk'], removed_at__isnull=True)
+            response = {'pk': user.pk, 'last_name': user.last_name, 'first_name': user.first_name,
+                        'second_name': user.second_name, 'fio': user.__str__(),
+                        'birthday': user.birthday.strftime('%d.%m.%Y'), 'phone_number': user.phone_number}
+            return HttpResponse(json.dumps(response))
+    elif action == 'select2':
+        if 'q' in request.GET:
+            users = User.objects.annotate(fio=Concat('last_name', V(' '), 'first_name', V(' '), 'second_name')). \
+                filter(fio__icontains=request.GET['q'], removed_at__isnull=True)
+            response = [{'id': user.pk, 'text': user.__str__(), 'birthday': user.birthday.strftime('%d.%m.%Y')}
+                        for user in users]
+            return HttpResponse(json.dumps({'results': response}))
 
 
 def is_hostel_request(wizard):

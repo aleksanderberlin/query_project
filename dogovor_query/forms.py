@@ -87,3 +87,7 @@ class RequestFormSubjectUniversity(forms.Form):
 
     other_text = forms.CharField(max_length=150, label='Другое', required=False, widget=forms.TextInput(attrs={
         'class': 'form-control form-control-sm', 'readonly': 'True'}))
+
+
+class SearchUser(forms.Form):
+    user = forms.IntegerField(label='Клиент', widget=forms.Select(attrs={'class': 'form-control'}))

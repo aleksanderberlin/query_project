@@ -64,6 +64,12 @@ class Request(models.Model):
             prefix = ''
         return prefix + str(self.number).zfill(3)
 
+    def get_type_verbose(self):
+        if self.type == 'university':
+            return 'Университет'
+        elif self.type == 'hostel':
+            return 'Общежитие'
+
 
 class RequestLog(models.Model):
     class RequestStatus(models.TextChoices):
@@ -83,13 +89,16 @@ class RequestLog(models.Model):
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
         get_latest_by = 'created_at'
         verbose_name = 'Статус заявки'
         verbose_name_plural = 'Статусы заявок'
 
     def __str__(self):
         return str(self.request.pk) + ' - ' + self.status + ' - ' + self.created_at.strftime('%d.%m.%Y %H:%M')
+
+    def get_status_verbose(self):
+        return self.RequestStatus.labels[self.RequestStatus.values.index(self.status)]
 
 
 class Note(models.Model):
@@ -102,7 +111,7 @@ class Note(models.Model):
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ['-created_at']
         get_latest_by = 'created_at'
         verbose_name = 'Примечание'
         verbose_name_plural = 'Примечания'

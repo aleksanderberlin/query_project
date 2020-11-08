@@ -5,8 +5,8 @@
         <div class="collapse navbar-collapse" id="navbarButtons">
             <ul class="navbar-nav mr-auto">
                 {% with url_name=request.resolver_match.url_name %}
-                    <li class="nav-item {% if url_name == 'search' %}active{% endif %}">
-                        <a class="nav-link" href="#">Поиск</a>
+                    <li class="nav-item {% if url_name == 'search_requests' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'search_requests' %}">Поиск</a>
                     </li>
                     {% if perms.dogovor_query.view_query %}
                         <li class="nav-item {% if url_name == 'query_list' %}active{% endif %}">

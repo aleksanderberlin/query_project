@@ -17,3 +17,9 @@ class Specialist(AbstractUser):
         ]
         verbose_name = 'Специалист'
         verbose_name_plural = 'Специалисты'
+
+    def get_full_name(self):
+        return self.last_name + ' ' + self.first_name
+
+    def get_short_name(self):
+        return self.last_name + ' ' + self.first_name[0] + '.'

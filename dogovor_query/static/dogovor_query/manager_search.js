@@ -30,7 +30,7 @@ $(document).ready(function () {
             },
         },
         placeholder: 'Начните вводить имя',
-        minimumInputLength: 5,
+        minimumInputLength: 3,
     })
 
     if (current_search_user_pk.val().length !== 0) {

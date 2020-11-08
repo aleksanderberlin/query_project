@@ -59,9 +59,14 @@
                              aria-labelledby="heading{{ request.pk }}" data-parent="#requests_collapse">
                             <div class="card-body">
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">Тип: {{ request.get_type_verbose }}</li>
-                                    <li class="list-group-item">Тема: {{ request.question }}</li>
-                                    <li class="list-group-item">Примечания:
+                                    <li class="list-group-item">
+                                        <span class="font-weight-bold">Тип:</span> {{ request.get_type_verbose }}
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="font-weight-bold">Тема:</span> {{ request.question }}
+                                    </li>
+                                    <li class="list-group-item">
+                                        <span class="font-weight-bold">Примечания:</span>
                                         {% if request.note_set.all %}
                                             <table class="table table-hover table-sm mt-2">
                                                 {% for note in request.note_set.all %}
@@ -77,7 +82,8 @@
                                             -
                                         {% endif %}
                                     </li>
-                                    <li class="list-group-item">История изменений:
+                                    <li class="list-group-item">
+                                        <span class="font-weight-bold">История изменений:</span>
                                         <table class="table table-hover table-sm mt-2">
                                             {% for log in request.requestlog_set.all %}
                                                 <tr>

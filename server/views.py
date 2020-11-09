@@ -15,9 +15,9 @@ def server_settings(request):
             config.EXCLUDE_WEEKDAYS = settings_form.cleaned_data['exclude_weekdays']
             config.TIME_OPENING = settings_form.cleaned_data['time_opening']
             config.TIME_CLOSING = settings_form.cleaned_data['time_closing']
-            messages.SUCCESS('Изменения успешно сохранены')
+            messages.success(request, 'Изменения успешно сохранены')
         else:
-            messages.ERROR('Введенные параметры некорректны.')
+            messages.error(request, 'Введенные параметры некорректны.')
     settings_form = ServerSettingsForm(initial={'exclude_weekdays': config.EXCLUDE_WEEKDAYS,
                                                 'time_opening': config.TIME_OPENING,
                                                 'time_closing': config.TIME_CLOSING})

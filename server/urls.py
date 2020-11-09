@@ -1,4 +1,4 @@
-"""query_project URL Configuration
+"""mobile_query URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -13,21 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import RedirectView
-from django.conf import settings
-import debug_toolbar
+from .views import *
+from django.urls import path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico'), name='favicon'),
-    path('', include('dogovor_query.urls')),
-    path('specialist/', include('specialist.urls')),
-    path('server/', include('server.urls')),
+    path('server_settings', server_settings, name='server_settings'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ]

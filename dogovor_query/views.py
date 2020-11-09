@@ -10,6 +10,7 @@ import json
 from django.contrib import messages
 from django.db.models.functions import Concat
 from django.db.models import Value as V
+from constance import config
 
 FORMS = [
     ('user', RequestFormUser),
@@ -34,6 +35,10 @@ def split_fio(fio):
 
 
 def main_page(request):
+    if (timezone.now().strftime('%A').lower() in config.EXCLUDE_WEEKDAYS) or \
+            timezone.now().time() < config.TIME_OPENING or \
+            timezone.now().time() > config.TIME_CLOSING:
+        return render(request, 'dogovor_query/reseption_closed.html')
     response = RequestWizard.as_view()(request)
     if 'user_uid' in request.COOKIES:
         try:

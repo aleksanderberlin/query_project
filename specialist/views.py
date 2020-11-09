@@ -36,6 +36,7 @@ def specialist_login(request):
             return render(request, 'specialist/login.html', {'form': form})
 
 
+@login_required(login_url='specialist_login')
 def specialist_settings(request):
     if request.method == 'POST':
         settings_form = SettingsForm(request.POST, instance=request.user)

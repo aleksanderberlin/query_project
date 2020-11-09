@@ -28,7 +28,9 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" href="{% url 'specialist_settings' %}">Настройки</a>
-{#                <a class="dropdown-item" href="{% url 'specialist_settings' %}">Параметры сервера</a>#}
+                {% if perms.database.change_server_settings %}
+                <a class="dropdown-item" href="{% url 'server_settings' %}">Параметры сервера</a>
+                {% endif %}
                 <a class="dropdown-item" href="{% url 'specialist_logout' %}">Выйти</a>
             </div>
         </div>

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Электронная очередь Договорного отдела СПбГУТ
+{% endblock %}
+{% block additional_js %}
+    {{ block.super }}
+{% endblock %}
+{% block additional_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'dogovor_query/user_form.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container-xl font-size-12">
+        <div class="card mt-3 text-white bg-warning">
+            <div class="card-header">
+                Электронная очередь Договорного отдела
+            </div>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-
+                        {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+                     role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="card text-white bg-danger mt-3">
+            <div class="card-header">Прием закрыт</div>
+            <div class="card-body">
+                В данный момент договорный отдел не ведет прием клиентов
+            </div>
+        </div>
+        <div class="card bg-light mt-3">
+            <div class="card-header">Время приема договорного отдела</div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th>День недели</th>
+                        <th>Время приема</th>
+                        <th>Перерыв</th>
+                    </tr>
+                    <tr>
+                        <td>Понедельник</td>
+                        <td>10:00 - 16:00</td>
+                        <td>13:00 - 14:00</td>
+                    </tr>
+                    <tr>
+                        <td>Вторник</td>
+                        <td>10:00 - 16:00</td>
+                        <td>13:00 - 14:00</td>
+                    </tr>
+                    <tr>
+                        <td>Среда</td>
+                        <td>10:00 - 16:00</td>
+                        <td>13:00 - 14:00</td>
+                    </tr>
+                    <tr>
+                        <td>Четверг</td>
+                        <td>Нет приема</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Пятница</td>
+                        <td>10:00 - 16:00</td>
+                        <td>13:00 - 14:00</td>
+                    </tr>
+                    <tr>
+                        <td>Суббота</td>
+                        <td>Нет приема</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>Воскресенье</td>
+                        <td>Нет приема</td>
+                        <td>-</td>
+                    </tr>
+                </table>
+{#                <ul class="list-group list-group-flush">#}
+{#                    <li class="list-group-item">Понедельник 10:00 - 16:00</li>#}
+{#                    <li class="list-group-item">Dapibus ac facilisis in</li>#}
+{#                    <li class="list-group-item">Morbi leo risus</li>#}
+{#                    <li class="list-group-item">Porta ac consectetur ac</li>#}
+{#                    <li class="list-group-item">Vestibulum at eros</li>#}
+{#                </ul>#}
+            </div>
+        </div>
+    </div>
+{% endblock %}

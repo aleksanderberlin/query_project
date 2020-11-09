@@ -6,16 +6,17 @@
 {% block content %}
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+            <div class="alert alert-
+                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
                  role="alert">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
-    <div class="card m-2">
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="card m-2">
+            <div class="card-body">
                 {{ server_settings_form.non_fields_errors }}
                 {% for field in server_settings_form %}
                     <div class="form-group row">
@@ -27,10 +28,14 @@
                         </div>
                     </div>
                 {% endfor %}
-                <button type="submit" class="btn btn-primary">Сохранить</button>
-            </form>
+            </div>
         </div>
-    </div>
+        <div class="card m-2">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% block additional_js %}

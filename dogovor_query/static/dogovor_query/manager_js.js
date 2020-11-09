@@ -87,18 +87,22 @@ $(document).ready(function () {
         columns: [
             {data: 'pk'},
             {data: 'number', width: '10%'},
-            {data: 'fio', width: '20%'},
+            {data: 'fio', width: '15%'},
             {data: 'birthday', width: '15%'},
             {data: 'phone_number', width: '15%'},
             {data: 'type', width: '10%'},
-            {data: 'question', width: '30%'},
-            {data: 'created_at'},
+            {data: 'question', width: '25%'},
+            {
+                data: 'created_at', width: '10%',
+                render: function(data, type, row) {
+                    return moment(data, "DD.MM.YYYY HH:mm:ss").format('HH:mm')
+                }},
             {data: 'status'},
             {data: 'notes'},
         ],
         "columnDefs": [
             {
-                "targets": [0, 7, 8, 9],
+                "targets": [0, 8, 9],
                 "visible": false,
                 "searchable": false
             }

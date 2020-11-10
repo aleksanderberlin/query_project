@@ -38,7 +38,10 @@ def main_page(request):
     if (timezone.now().strftime('%A').lower() in config.EXCLUDE_WEEKDAYS) or \
             timezone.now().time() < config.TIME_OPENING or \
             timezone.now().time() > config.TIME_CLOSING:
-        return render(request, 'dogovor_query/reseption_closed.html')
+        return render(request, 'dogovor_query/reseption_closed.html',
+                      {'config': config, 'weekdays': [('ПН', 'monday'), ('ВТ', 'tuesday'), ('СР', 'wednesday'),
+                                                      ('ЧТ', 'thursday'), ('ПТ', 'friday'), ('СБ', 'saturday'),
+                                                      ('ВС', 'sunday')]})
     response = RequestWizard.as_view()(request)
     if 'user_uid' in request.COOKIES:
         try:

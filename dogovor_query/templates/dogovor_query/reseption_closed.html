@@ -29,7 +29,7 @@
         <div class="card text-white bg-danger mt-3">
             <div class="card-header">Прием закрыт</div>
             <div class="card-body">
-                В данный момент договорной отдел не ведет прием клиентов
+                В данный момент договорной отдел не ведет прием новых заявок
             </div>
         </div>
         <div class="card bg-light mt-3">
@@ -41,41 +41,18 @@
                         <th>Прием</th>
                         <th>Перерыв</th>
                     </tr>
-                    <tr>
-                        <td>ПН</td>
-                        <td>10:00 - 16:00</td>
-                        <td>13:00 - 14:00</td>
-                    </tr>
-                    <tr>
-                        <td>ВТ</td>
-                        <td>10:00 - 16:00</td>
-                        <td>13:00 - 14:00</td>
-                    </tr>
-                    <tr>
-                        <td>СР</td>
-                        <td>10:00 - 16:00</td>
-                        <td>13:00 - 14:00</td>
-                    </tr>
-                    <tr>
-                        <td>ЧТ</td>
-                        <td>Нет приема</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>ПТ</td>
-                        <td>10:00 - 16:00</td>
-                        <td>13:00 - 14:00</td>
-                    </tr>
-                    <tr>
-                        <td>СБ</td>
-                        <td>Нет приема</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>ВС</td>
-                        <td>Нет приема</td>
-                        <td>-</td>
-                    </tr>
+                    {% for day in weekdays %}
+                        <tr>
+                            <td>{{ day.0 }}</td>
+                            {% if day.1 in config.EXCLUDE_WEEKDAYS %}
+                                <td>Нет приема</td>
+                                <td>-</td>
+                            {% else %}
+                                <td>{{ config.TIME_OPENING|time:'H:i' }} - {{ config.TIME_CLOSING|time:'H:i' }}</td>
+                                <td>{{ config.TIME_BREAK_START|time:'H:i' }} - {{ config.TIME_BREAK_END|time:'H:i' }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>

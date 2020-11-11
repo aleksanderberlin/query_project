@@ -541,7 +541,7 @@ $(document).ready(function () {
 
     setInterval(function () {
         requests_table.ajax.reload();
-    }, 5000);
+    }, 3000);
 
     function timer_change_state(new_state, timestamp = '') {
         if (new_state === 'stop') {

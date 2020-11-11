@@ -8,9 +8,11 @@ class ServerSettingsForm(forms.Form):
     ]
     exclude_weekdays = forms.MultipleChoiceField(choices=WEEKDAYS, label='Неприемные дни', required=False,
                                                  widget=forms.SelectMultiple(attrs={'class': 'form-control'}))
-    time_opening = forms.TimeField(label='Время начала приема', widget=forms.TextInput(attrs={'class': 'form-control'}))
-    time_closing = forms.TimeField(label='Время конца приема', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    time_opening = forms.TimeField(label='Время начала приема', widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                                              'data-mask': '00:00:00'}))
+    time_closing = forms.TimeField(label='Время конца приема', widget=forms.TextInput(attrs={'class': 'form-control',
+                                                                                             'data-mask': '00:00:00'}))
     time_break_start = forms.TimeField(label='Время начала перерыва',
-                                       widget=forms.TextInput(attrs={'class': 'form-control'}))
+                                       widget=forms.TextInput(attrs={'class': 'form-control', 'data-mask': '00:00:00'}))
     time_break_end = forms.TimeField(label='Время конца перерыва',
-                                     widget=forms.TextInput(attrs={'class': 'form-control'}))
+                                     widget=forms.TextInput(attrs={'class': 'form-control', 'data-mask': '00:00:00'}))

@@ -298,7 +298,7 @@ def api_get_specialists_requests(request):
     today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
         order_by('request_id', '-created_at').distinct('request')
 
-    specialists = Specialist.objects.all().order_by('last_name').prefetch_related(
+    specialists = Specialist.objects.all().order_by('room', 'last_name').prefetch_related(
         Prefetch('requestlog_set', queryset=RequestLog.objects.filter(pk__in=today_request_statuses,
                                                                       status__in=['activated', 'processing'])),
         Prefetch('requestlog_set__request', queryset=Request.objects.filter(removed_at__isnull=True)),

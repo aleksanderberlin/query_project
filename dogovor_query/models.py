@@ -47,9 +47,10 @@ class Request(models.Model):
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
         permissions = [
-            ('view_query', 'Может просматривать список новых заявок'),
+            ('view_query', 'Смотреть список новых заявок'),
             ('create_reports', 'Формировать отчеты'),
-            ('work_requests', 'Может принимать клиентов'),
+            ('work_requests', 'Принимать клиентов'),
+            ('view_dashboard', 'Смотреть обзор активных заявок')
         ]
 
     def __str__(self):

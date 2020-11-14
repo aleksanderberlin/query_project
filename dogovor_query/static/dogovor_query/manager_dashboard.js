@@ -9,7 +9,7 @@ $(document).ready(function () {
                 let data = JSON.parse(response)
                 let request_cards_html = ''
                 data.forEach(function (specialist, i, obj) {
-                    request_cards_html += "<div class=\"card m-3 border-info\">" +
+                    request_cards_html += "<div class=\"col mb-4\"><div class=\"card border-info\">" +
                         "<div class=\"card-header\"><h5>" + specialist.specialist_fio + "</h5></div>" +
                         "<div class=\"card-body\">" +
                         "<ul class=\"list-group list-group-horizontal-sm mb-3\">" +
@@ -34,7 +34,7 @@ $(document).ready(function () {
                     } else {
                         request_cards_html += "<span class=\"badge badge-secondary\">Ожидание</span>"
                     }
-                    request_cards_html += "</div></div></div></div>"
+                    request_cards_html += "</div></div></div></div></div>"
                 })
                 cards_container.html(request_cards_html)
             }

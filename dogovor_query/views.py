@@ -52,32 +52,13 @@ def main_page(request):
             response.delete_cookie('user_uid')
             return response
         user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
-        context = {}
         if user_request:
             user_request = user_request.latest()
             user_request_status = user_request.requestlog_set
             if user_request_status:
                 user_request_status = user_request_status.latest()
                 if user_request_status.status in ['created', 'activated', 'processing', 'postponed']:
-                    request_logs = RequestLog.objects.filter(removed_at__isnull=True,
-                                                             created_at__gte=timezone.now().date()). \
-                        order_by('request_id', '-created_at').distinct('request')
-
-                    people_before_amount = RequestLog.objects.filter(pk__in=request_logs,
-                                                                     status__in=['created', 'processing', 'activated'],
-                                                                     request__created_at__lte=user_request.created_at). \
-                        count()
-
-                    context['user_uid'] = user.user_uid
-                    context['fio'] = user.__str__()
-                    if user_request_status.specialist:
-                        context['room'] = user_request_status.specialist.room
-                        context['table_number'] = user_request_status.specialist.table_number
-                        context['specialist_name'] = user_request_status.specialist.get_full_name()
-                    context['query_number'] = user_request.get_query_number()
-                    context['current_status'] = user_request_status.status
-                    context['people_before_amount'] = max(people_before_amount - 1, 0)
-                    response = render(request, 'dogovor_query/user_waiting.html', context)
+                    response = render(request, 'dogovor_query/user_waiting.html')
     return response
 
 
@@ -301,6 +282,12 @@ def manage_user(request, action):
             response = [{'id': user.pk, 'text': user.__str__(), 'birthday': user.birthday.strftime('%d.%m.%Y')}
                         for user in users]
             return HttpResponse(json.dumps({'results': response}))
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_dashboard', raise_exception=True)
+def api_get_specialists_requests(request):
+    pass
 
 
 def is_hostel_request(wizard):

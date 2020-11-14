@@ -2,16 +2,47 @@
 {% block wizard_form %}
     {% for field in wizard.form %}
         {% if not field.is_hidden %}
-            <div class="card mt-2 mb-2">
-                <div class="card-header">
-                    <label for="id_user-birthday">{{ field.label }}</label>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row m-2">
-                        {{ field }}
+            {% if field.name == 'type' %}
+                <div class="card mt-2 mb-2">
+                    <div class="card-header">
+                        <label for="id_user-type">{{ field.label }}</label>
+                    </div>
+                    <div class="card-body pl-0 pr-0">
+                        {% for choice in field.field.choices %}
+                            <div class="form-check mt-2 mb-2 mr-1">
+                                <div class="form-row">
+                                    <div class="col-auto">
+                                        <div class="pretty p-bigger p-icon p-curve p-pulse">
+                                            <input type="radio" class="form-check-input" name="user-type"
+                                                   id="id_user-type_{{ forloop.counter0 }}"
+                                                   value="{{ choice.0 }}">
+                                            <div class="state p-warning" style="max-width: 100%">
+                                                <i class="icon mdi mdi-check"></i>
+                                                <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-check-label"
+                                               for="id_user-type_{{ forloop.counter0 }}">{{ choice.1 }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="card mt-2 mb-2">
+                    <div class="card-header">
+                        <label for="id_user-birthday">{{ field.label }}</label>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group row m-2">
+                            {{ field }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         {% else %}
             {{ field }}
         {% endif %}

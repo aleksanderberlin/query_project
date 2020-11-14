@@ -17,8 +17,7 @@ class RequestFormUser(forms.Form):
         'class': 'form-control', 'data-mask': '00.00.0000', 'data-mask-clearifnotmatch': 'true'}))
     phone_number = forms.CharField(max_length=17, label='Номер телефона', widget=forms.TextInput(attrs={
         'class': 'form-control', 'data-mask': '8 (000) 000-00-00', 'data-mask-clearifnotmatch': 'true'}))
-    type = forms.ChoiceField(choices=CHOICES, label='Тип обращения', widget=forms.Select(attrs={
-        'class': 'form-control'}))
+    type = forms.ChoiceField(choices=CHOICES, label='Тип обращения', widget=forms.RadioSelect())
 
     def clean_birthday(self):
         birthday = self.cleaned_data['birthday']

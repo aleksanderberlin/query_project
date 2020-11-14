@@ -20,128 +20,50 @@
         </div>
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2" role="alert">
+                <div class="alert alert-
+                        {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+                     role="alert">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
-        {% if current_status == 'created' or current_status == 'postponed' %}
-            <div id="attention_info" class="card mt-2 mb-2">
-                <div class="card-header">
-                    Обратите внимание!
-                </div>
-                <div class="card-body">
-                    Данная страница обновляется автоматически. Когда специалист будет готов Вас принять, статус заявки
-                    изменится на "Вызов", и появится дополнительное информационное сообщение, подсвеченное зеленым
-                    цветом.
-                </div>
+        <div id="attention_info" class="card mt-2 mb-2" style="display: none">
+            <div class="card-header">
+                Обратите внимание!
             </div>
-        {% else %}
-            <div id="attention_info" class="card mt-2 mb-2" style="display: none">
-                <div class="card-header">
-                    Обратите внимание!
-                </div>
-                <div class="card-body">
-                    Данная страница обновляется автоматически. Когда специалист будет готов Вас принять, статус заявки
-                    изменится на "Вызов", и появится дополнительное информационное сообщение, подсвеченное зеленым
-                    цветом.
-                </div>
-            </div>
-        {% endif %}
-        <div class="card mt-2 mb-2">
-            <div class="card-body pr-0">
-                ФИО: <span class="span_info" id="span_user_fio">{{ fio }}</span>
+            <div class="card-body">
+                Данная страница обновляется автоматически. Когда специалист будет готов Вас принять, статус заявки
+                изменится на "Вызов", и появится дополнительное информационное сообщение, подсвеченное зеленым
+                цветом.
             </div>
         </div>
         <div class="card mt-2 mb-2">
             <div class="card-body pr-0">
-                Ваш номер: <span class="span_info" id="span_user_query_number">{{ query_number }}</span>
+                ФИО: <span class="span_info" id="span_user_fio"></span>
             </div>
         </div>
         <div class="card mt-2 mb-2">
             <div class="card-body pr-0">
-                Текущий статус:
-                {% if current_status == 'created' %}
-                    <span class="badge badge-warning" id="span_user_status">Ожидание вызова</span>
-                {% elif current_status == 'activated' %}
-                    <span class="badge badge-success blob" id="span_user_status">Вызов</span>
-                {% elif current_status == 'processing' %}
-                    <span class="badge badge-primary blob" id="span_user_status">Обработка</span>
-                {% elif current_status == 'cancelled' %}
-                    <span class="badge badge-danger" id="span_user_status">Отменена</span>
-                {% elif current_status == 'closed' %}
-                    <span class="badge badge-dark" id="span_user_status">Обработана</span>
-                {% elif current_status == 'postponed' %}
-                    <span class="badge badge-secondary" id="span_user_status">Отложена</span>
-                {% endif %}
+                Ваш номер: <span class="span_info" id="span_user_query_number"></span>
             </div>
         </div>
-        {% if current_status == 'created' %}
-            <div id="card_people_before" class="card mt-2 mb-2">
-                <div class="card-body pr-0">
-                    Перед вами <span class="span_info" id="span_user_before_amount">{{ people_before_amount }}</span>
-                    чел.
-                </div>
+        <div class="card mt-2 mb-2">
+            <div class="card-body pr-0">
+                Текущий статус: <div class="badge" id="div_user_status"></div>
             </div>
-        {% else %}
-            <div id="card_people_before" class="card mt-2 mb-2" style="display: none">
-                <div class="card-body pr-0">
-                    Перед вами <span class="span_info" id="span_user_before_amount">{{ people_before_amount }}</span>
-                    чел.
-                </div>
+        </div>
+        <div id="card_pretty_status_info" class="card mt-2 mb-2">
+            <div class="card-body pr-0"></div>
+        </div>
+        <div id="card_cancel_request" class="card mt-2 mb-2" style="display: none">
+            <div class="card-body pr-0">
+                <button id="cancel_request" class="btn btn-danger">Отменить заявку</button>
             </div>
-        {% endif %}
-        {% if current_status == 'activated' %}
-            <div id="card_welcome" class="card mt-2 mb-2 text-white bg-success">
-                <div class="card-body pr-0">
-                    Ваша очередь подошла! Проходите в кабинет <span class="span_info"
-                                                                    id="span_specialist_room">{{ room }}</span> к столу
-                    номер
-                    <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
-                    к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
-                </div>
+        </div>
+        <div id="card_new_request" class="card mt-2 mb-2" style="display: none">
+            <div class="card-body pr-0">
+                <a id="new_request" href="/" class="btn btn-warning m-2 text-white">Создать новую заявку</a>
             </div>
-        {% elif current_status == 'processing' %}
-            <div id="card_welcome" class="card mt-2 mb-2 text-white bg-info">
-                <div class="card-body pr-0">
-                    С Вами работает специалист <span class="span_info"
-                                                     id="span_specialist_name">{{ specialist_name }}</span>
-                </div>
-            </div>
-        {% else %}
-            <div id="card_welcome" class="card mt-2 mb-2 text-white bg-succes" style="display: none">
-                <div class="card-body pr-0">
-                    Ваша очередь подошла! Проходите в кабинет 214/2 к столу номер
-                    <span class="span_info" id="span_specialist_table_number">{{ table_number }}</span>
-                    к специалисту <span class="span_info" id="span_specialist_name">{{ specialist_name }}</span>
-                </div>
-            </div>
-        {% endif %}
-        {% if current_status == 'created' or current_status == 'postponed' %}
-            <div id="card_cancel_request" class="card mt-2 mb-2">
-                <div class="card-body pr-0">
-                    <button id="cancel_request" class="btn btn-danger">Отменить заявку</button>
-                </div>
-            </div>
-        {% else %}
-            <div id="card_cancel_request" class="card mt-2 mb-2" style="display: none">
-                <div class="card-body pr-0">
-                    <button id="cancel_request" class="btn btn-danger">Отменить заявку</button>
-                </div>
-            </div>
-        {% endif %}
-        {% if current_status == 'cancelled' or current_status == 'closed' %}
-            <div id="card_new_request" class="card mt-2 mb-2">
-                <div class="card-body pr-0">
-                    <a id="new_request" href="/" class="btn btn-warning m-2 text-white">Создать новую заявку</a>
-                </div>
-            </div>
-        {% else %}
-            <div id="card_new_request" class="card mt-2 mb-2" style="display: none">
-                <div class="card-body pr-0">
-                    <a id="new_request" href="/" class="btn btn-warning m-2 text-white">Создать новую заявку</a>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     </div>
 {% endblock %}

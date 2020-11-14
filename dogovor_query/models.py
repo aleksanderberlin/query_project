@@ -50,7 +50,7 @@ class Request(models.Model):
             ('view_query', 'Смотреть список новых заявок'),
             ('create_reports', 'Формировать отчеты'),
             ('work_requests', 'Принимать клиентов'),
-            ('view_dashboard', 'Смотреть обзор активных заявок')
+            ('view_dashboard', 'Смотреть дэшбоард')
         ]
 
     def __str__(self):

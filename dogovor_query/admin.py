@@ -36,7 +36,7 @@ class RequestAdmin(admin.ModelAdmin):
 
 @admin.register(RequestLog)
 class RequestLogAdmin(admin.ModelAdmin):
-    list_display = ('request_id', 'specialist_id', 'status')
+    list_display = ('pk', 'request_id', 'specialist_id', 'status')
     ordering = ['-created_at']
     list_filter = ('specialist', 'status', 'created_at', IsRemovedFilter)
 

@@ -26,7 +26,7 @@ $(document).ready(function () {
                             "<li class=\"list-group-item\">Тип: " + specialist.requests[0].request_type + "</li>" +
                             "<li class=\"list-group-item\">Тема: " + specialist.requests[0].request_question + "</li>"
                         if (specialist.requests[0].request_status === 'Активирована') {
-                            request_cards_html += "<li class=\"list-group-item\">Статус: <span class='badge badge-success'>Вызвана</span></li>"
+                            request_cards_html += "<li class=\"list-group-item\">Статус: <span class='badge badge-success'>Клиент вызван</span></li>"
                         } else if (specialist.requests[0].request_status === 'Обрабатывается') {
                             request_cards_html += "<li class=\"list-group-item\">Статус: <span class='badge badge-primary'>Обрабатывется</span></li>"
                         }

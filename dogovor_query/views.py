@@ -4,12 +4,14 @@ from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
 from .models import *
+from specialist.models import Specialist
 import datetime
 from django.utils import timezone
 import json
 from django.contrib import messages
 from django.db.models.functions import Concat
-from django.db.models import Value as V
+from django.db.models import Value as V, Count
+from django.db.models import Prefetch
 from constance import config
 
 FORMS = [
@@ -286,8 +288,52 @@ def manage_user(request, action):
 
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_dashboard', raise_exception=True)
+def manager_dashboard(request):
+    return render(request, 'dogovor_query/manager_dashboard.html')
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_dashboard', raise_exception=True)
 def api_get_specialists_requests(request):
-    pass
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+        order_by('request_id', '-created_at').distinct('request')
+
+    specialists = Specialist.objects.all().order_by('last_name').prefetch_related(
+        Prefetch('requestlog_set', queryset=RequestLog.objects.filter(pk__in=today_request_statuses,
+                                                                      status__in=['activated', 'processing'])),
+        Prefetch('requestlog_set__request', queryset=Request.objects.filter(removed_at__isnull=True)),
+        Prefetch('requestlog_set__request__user', queryset=User.objects.filter(removed_at__isnull=True)))
+
+    response = [{'specialist_fio': specialist.get_full_name(), 'specialist_room': specialist.room,
+                 'specialist_table': specialist.table_number,
+                 'requests': [
+                     {'request_pk': user_request_log.request.pk,
+                      'client_fio': user_request_log.request.user.__str__(),
+                      'request_number': user_request_log.request.get_query_number(),
+                      'request_type': user_request_log.request.get_type_verbose(),
+                      'request_created_at': user_request_log.request.created_at.strftime('%H:%M:%S'),
+                      'request_question': user_request_log.request.question,
+                      'request_status': user_request_log.get_status_verbose(),
+                      'request_status_created_at': user_request_log.created_at.strftime('%H:%M:%S')
+                      } for user_request_log in specialist.requestlog_set.all()
+                 ]} for specialist in specialists]
+    return HttpResponse(json.dumps(response))
+
+
+@login_required(login_url='specialist_login')
+@permission_required('dogovor_query.view_dashboard', raise_exception=True)
+def get_pivot_dashboard(request):
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()).\
+        order_by('request_id', '-created_at').distinct('request')
+    totals = {item['status']: item['status__count'] for item in
+              RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
+    response = {'today': timezone.now().date().strftime('%d.%m.%Y')}
+    for status in RequestLog.RequestStatus.values:
+        if status in totals:
+            response[status] = totals[status]
+        else:
+            response[status] = 0
+    return HttpResponse(json.dumps(response))
 
 
 def is_hostel_request(wizard):

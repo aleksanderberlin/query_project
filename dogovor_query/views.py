@@ -327,7 +327,7 @@ def get_pivot_dashboard(request):
         order_by('request_id', '-created_at').distinct('request')
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
-    response = {'today': timezone.now().date().strftime('%d.%m.%Y %H:%M')}
+    response = {'today': timezone.now().strftime('%d.%m.%Y %H:%M')}
     for status in RequestLog.RequestStatus.values:
         if status in totals:
             response[status] = totals[status]

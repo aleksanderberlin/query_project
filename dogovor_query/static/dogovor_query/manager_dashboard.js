@@ -47,8 +47,8 @@ $(document).ready(function () {
             success: function (response) {
                 let data = JSON.parse(response)
                 $('#requests_all_count').text(data['created'] + data['activated'] + data['processing'] + data['closed'] + data['cancelled'] + data['postponed'])
-                $('#requests_waiting_count').text(data['activated'] + data['postponed'])
-                $('#requests_processing_count').text(data['processing'])
+                $('#requests_waiting_count').text(data['created'] + data['postponed'])
+                $('#requests_processing_count').text(data['activated'] + data['processing'])
                 $('#requests_closed_count').text(data['closed'])
                 $('#requests_cancelled_count').text(data['cancelled'])
                 $('#today_date').text(data['today'])

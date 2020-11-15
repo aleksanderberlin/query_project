@@ -11,12 +11,23 @@ $(document).ready(function () {
     let request_current_status_created_at = $('#request_current_status_created_at')
     let span_timer = $('#current_client_status_time')
     let timer = new easytimer.Timer()
+    let request_id_note = $('#request_id_note')
+    let request_text_note = $('#request_text_note')
+    let add_note_modal = $('#add_note_modal')
+    let requests_count = 0
+    let is_first_ajax_call = 1
+    let request_notes = $('#request_notes')
 
     let requests_table = $('#requests_table').DataTable({
         "paging": false,
         "fnInitComplete": function () {
             var myCustomScrollbar = document.querySelector('#requests_table_wrapper .dataTables_scrollBody');
             var ps = new PerfectScrollbar(myCustomScrollbar);
+            if (request_id.val().length > 0) {
+                    requests_table.select.style('api')
+                } else {
+                    requests_table.select.style('single')
+                }
         },
         "scrollY": 450,
         "ajax": {
@@ -25,6 +36,19 @@ $(document).ready(function () {
                 $('#postponed_amount').text(data.info.postponed_amount)
                 $('#created_amount').text(data.info.created_amount)
                 return data.data
+            },
+            "complete": function (data) {
+                let requests = data['responseJSON'].data
+                if (requests_table.ajax.url().endsWith('created')) {
+                    if (requests_count < requests.length && is_first_ajax_call === 0) {
+                        let audioElement = document.createElement('audio');
+                        audioElement.setAttribute('src', 'https://proxy.notificationsounds.com/notification-sounds/just-maybe-577/download/file-sounds-1124-just-maybe.mp3');
+                        let promise = audioElement.play()
+                    } else if (is_first_ajax_call === 1) {
+                        is_first_ajax_call = 0
+                    }
+                    requests_count = requests.length
+                }
             }
         },
         "ordering": false,
@@ -41,7 +65,7 @@ $(document).ready(function () {
             "infoPostFix": "",
             "loadingRecords": "Загрузка заявок...",
             "zeroRecords": "Заявки отсутствуют.",
-            "emptyTable": "В настоящее время заявок нет",
+            "emptyTable": "В настоящее время новых заявок нет",
             "paginate": {
                 "first": "Первая",
                 "previous": "Предыдущая",
@@ -62,25 +86,30 @@ $(document).ready(function () {
         },
         columns: [
             {data: 'pk'},
-            {data: 'number'},
-            {data: 'fio'},
-            {data: 'birthday'},
-            {data: 'phone_number'},
-            {data: 'type'},
-            {data: 'subject'},
-            {data: 'created_at'},
+            {data: 'number', width: '10%'},
+            {data: 'fio', width: '15%'},
+            {data: 'birthday', width: '15%'},
+            {data: 'phone_number', width: '15%'},
+            {data: 'type', width: '10%'},
+            {data: 'question', width: '25%'},
+            {
+                data: 'created_at', width: '10%',
+                render: function(data, type, row) {
+                    return moment(data, "DD.MM.YYYY HH:mm:ss").format('HH:mm')
+                }},
             {data: 'status'},
+            {data: 'notes'}
         ],
         "columnDefs": [
             {
-                "targets": [0, 8],
+                "targets": [0, 8, 9],
                 "visible": false,
                 "searchable": false
             }
         ],
         dom: 'Bfrtip',
         select: {
-            style: 'single'
+            style: 'single',
         },
         buttons: [
             {
@@ -98,7 +127,41 @@ $(document).ready(function () {
                         data: {
                             'status': 'activated'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 7500,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже активирована, возможно, другим специалистом.',
+                                    delay: 7500,
+                                });
+                                dt.rows('.selected').remove().draw(false);
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно активирована, человек приглашен в кабинет.',
+                                delay: 7500,
+                            });
+                            dt.select.style('api')
                             request_id.val(data[0]['pk'])
                             request_status.val('activated')
                             request_current_status_created_at.val(data[0]['created_at'])
@@ -111,10 +174,11 @@ $(document).ready(function () {
                             current_client_phone_number.text(data[0]['phone_number'])
                             current_client_request_type.text(data[0]['type'])
                             current_client_request_question.text(data[0]['question'])
+                            request_notes.text(data[0]['notes'])
                             timer_change_state('start', response.changed_at)
                             dt.rows('.selected').remove().draw(false);
                             dt.buttons([0, 4]).disable()
-                            dt.buttons([1, 2, 3]).enable()
+                            dt.buttons([1, 2, 3, 5]).enable()
                         }
                     })
                 }
@@ -135,7 +199,40 @@ $(document).ready(function () {
                         data: {
                             'status': 'processing'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 7500,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже в работе. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Работа по заявке успешно начата.',
+                                delay: 7500,
+                            });
+                            dt.select.style('api')
                             request_status.val('processing')
                             request_current_status_created_at.val(response.changed_at)
                             span_status_text.removeClass()
@@ -145,7 +242,7 @@ $(document).ready(function () {
                             timer_change_state('stop')
                             timer_change_state('start', response.changed_at)
                             dt.buttons([0, 1, 2]).disable()
-                            dt.buttons([4]).enable()
+                            dt.buttons([3, 4, 5]).enable()
                         }
                     })
                 }
@@ -160,9 +257,11 @@ $(document).ready(function () {
                     }
                 },
                 action: function (e, dt, node, config) {
-                    let request_pk = request_id.val()
+                    let request_pk = null
                     if (request_id.val().length === 0) {
                         request_pk = dt.rows('.selected').data()[0]['pk']
+                    } else {
+                        request_pk = request_id.val()
                     }
                     $.ajax({
                         type: 'GET',
@@ -170,10 +269,43 @@ $(document).ready(function () {
                         data: {
                             'status': 'cancelled'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 7500,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже отменена. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно отменена.',
+                                delay: 7500,
+                            });
                             if (request_id.val().length === 0) {
                                 dt.rows('.selected').remove().draw(false);
                             }
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -185,11 +317,12 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
                 }
@@ -210,7 +343,40 @@ $(document).ready(function () {
                         data: {
                             'status': 'postponed'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 7500,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже отложена. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно перемещена в отложенные. Для повторного вызова нажмите кнопку "Показать отложенные заявки"',
+                                delay: 7500,
+                            });
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -222,11 +388,12 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
                 }
@@ -247,7 +414,40 @@ $(document).ready(function () {
                         data: {
                             'status': 'closed'
                         },
+                        statusCode: {
+                            400: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                                    delay: 7500,
+                                });
+                            },
+                            403: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже закрыта. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            },
+                            409: function () {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Ошибка',
+                                    content: 'Заявка уже завершена. Обновите страницу.',
+                                    delay: 7500,
+                                });
+                            }
+                        },
                         success: function (response) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Статус заявки изменен',
+                                content: 'Заявка успешно обработана и закрыта.',
+                                delay: 7500,
+                            });
+                            dt.select.style('single')
                             request_id.val('')
                             request_status.val('')
                             request_current_status_created_at.val('')
@@ -259,32 +459,68 @@ $(document).ready(function () {
                             current_client_request_type.text('')
                             current_client_request_question.text('')
                             current_query_number.text('')
+                            request_notes.text('')
                             timer_change_state('reset')
                             timer_change_state('stop')
                             timer_change_state('start', moment().format("DD.MM.YYYY HH:mm:ss"))
                             timer_change_state('stop')
-                            dt.buttons([0, 1, 2, 3, 4]).disable()
+                            dt.buttons([0, 1, 2, 3, 4, 5]).disable()
                         }
                     })
                 }
             },
             {
+                text: 'Добавить примечание',
+                className: 'btn-secondary',
+                init: function (api, node, config) {
+                    if (request_id.val().length === 0) {
+                        this.disable()
+                    }
+                },
+                action: function (e, dt, node, config) {
+                    if (request_id.val().length !== 0) {
+                        add_note_modal.modal('show')
+                    } else {
+                        $.toast({
+                            type: 'error',
+                            title: 'Ошибка',
+                            content: 'Попробуйте обновить страницу.',
+                            delay: 7500,
+                        });
+                    }
+                }
+            },
+            {
                 text: 'Показать отложенные заявки',
-                className: 'btn-info',
+                className: 'btn-info btn-block',
                 init: function (api, node, config) {
                     $(node).removeClass('btn-secondary')
                     $(node).text(' Показать отложенные заявки')
                     $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")
                 },
                 action: function (e, dt, node, config) {
-                    if ($(node).text().endsWith('отложенные заявки')) {
+                    if (dt.ajax.url().endsWith('created')) {
+                        current_request_type = 'postponed'
                         dt.ajax.url('api/requests/get?status=postponed').load()
                         $(node).text('Вернуться к активным заявкам')
-                        // $(node).prepend("<span id=\"created_amount\" class=\"badge badge-light\"></span>")
-                    } else if ($(node).text().endsWith('активным заявкам')) {
+                        $.toast({
+                            type: 'warning',
+                            title: 'Внимание',
+                            content: 'Таблица переключена в режим отображения отложенных заявок. ' +
+                                'Для возврата к активным заявкам нажмите на кнопку "Вернуться к активным заявкам".',
+                            delay: 10000,
+                        });
+                    } else if (dt.ajax.url().endsWith('postponed')) {
+                        current_request_type = 'created'
                         dt.ajax.url('api/requests/get?status=created').load()
                         $(node).text(' Показать отложенные заявки')
                         $(node).prepend("<span id=\"postponed_amount\" class=\"badge badge-light\"></span>")
+                        $.toast({
+                            type: 'success',
+                            title: 'Успех',
+                            content: 'Вы вернулись к просмотру активных заявок.',
+                            delay: 7500,
+                        });
                     }
                 }
             },
@@ -305,7 +541,7 @@ $(document).ready(function () {
 
     setInterval(function () {
         requests_table.ajax.reload();
-    }, 5000);
+    }, 3000);
 
     function timer_change_state(new_state, timestamp = '') {
         if (new_state === 'stop') {
@@ -337,4 +573,48 @@ $(document).ready(function () {
         span_timer.text(timer.getTimeValues().toString());
     });
 
+    $('#add_note').on('click', function () {
+        if (request_id.val().length !== 0 && request_text_note.val().length !== 0) {
+            $.ajax({
+                type: 'GET',
+                url: '/manager/api/note/add',
+                data: {
+                    'request_id': request_id.val(),
+                    'note_text': request_text_note.val()
+                },
+                statusCode: {
+                    400: function () {
+                        $.toast({
+                            type: 'error',
+                            title: 'Ошибка',
+                            content: 'Произошла ошибка запроса. Обратитесь к администратору.',
+                            delay: 7500,
+                        });
+                    }
+                },
+                success: function (response) {
+                    $.toast({
+                        type: 'success',
+                        title: 'Успешно',
+                        content: 'Примечание успешно добавлено.',
+                        delay: 7500,
+                    });
+                    if (request_notes.text().length > 0) {
+                        request_notes.text(request_notes.text() + ";" + response.note_text)
+                    } else {
+                        request_notes.text(response.note_text)
+                    }
+                    request_text_note.val('')
+                    add_note_modal.modal('hide')
+                }
+            })
+        } else {
+            $.toast({
+                type: 'error',
+                title: 'Ошибка',
+                content: 'Попробуйте обновить страницу.',
+                delay: 7500,
+            });
+        }
+    })
 });

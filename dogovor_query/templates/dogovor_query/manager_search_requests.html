@@ -3,115 +3,154 @@
 {% block title %}
     Поиск заявок | Договорный отдел СПбГУТ
 {% endblock %}
-{% block content %}
-    <div class="container mt-3">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-
-                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
-                     role="alert">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-        <div class="card m-3">
-            <div class="card-body">
-                <input type="hidden" id="current_search_user_pk" value="{{ client.pk }}"/>
-                <form method="POST" id="form_search">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        {{ form.user }}
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="submit" id="button_search">Поиск</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% if requests %}
-            <div id="requests_collapse">
-                {% for request in requests %}
-                    <div class="card m-3">
-                        <div class="card-header">
-                            <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                    data-target="#collapse{{ request.pk }}"
-                                    aria-expanded="true" aria-controls="collapse{{ request.pk }}">
-                                Заявка {{ request.get_query_number }} от {{ request.created_at }} |
-                                {{ request.question }} |
-                                {% for log in request.requestlog_set.all %}
-                                    {% if forloop.last %}
-                                        {% if log.status == 'created' %}
-                                            <span class="text-warning">{{ log.get_status_verbose }}</span>
-                                        {% elif log.status == 'activated' %}
-                                            <span class="text-success">{{ log.get_status_verbose }}</span>
-                                        {% elif log.status == 'processing' %}
-                                            <span class="text-info">{{ log.get_status_verbose }}</span>
-                                        {% elif log.status in 'closedcancelled' %}
-                                            <span class="text-danger">{{ log.get_status_verbose }}</span>
-                                        {% elif log.status == 'postponed' %}
-                                            <span class="text-dark">{{ log.get_status_verbose }}</span>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </button>
-                        </div>
-                        <div id="collapse{{ request.pk }}" class="collapse"
-                             aria-labelledby="heading{{ request.pk }}" data-parent="#requests_collapse">
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <span class="font-weight-bold">Тип:</span> {{ request.get_type_verbose }}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="font-weight-bold">Тема:</span> {{ request.question }}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="font-weight-bold">Примечания:</span>
-                                        {% if request.note_set.all %}
-                                            <table class="table table-hover table-sm mt-2">
-                                                {% for note in request.note_set.all %}
-                                                    <tr>
-                                                        <td>{{ forloop.counter }}</td>
-                                                        <td>{{ note.text }}</td>
-                                                        <td>{{ note.created_at }}</td>
-                                                        <td>{{ note.specialist.get_short_name }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </table>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </li>
-                                    <li class="list-group-item">
-                                        <span class="font-weight-bold">История изменений:</span>
-                                        <table class="table table-hover table-sm mt-2">
-                                            {% for log in request.requestlog_set.all %}
-                                                <tr>
-                                                    <td>{{ forloop.counter }}</td>
-                                                    <td>{{ log.get_status_verbose }}</td>
-                                                    <td>{{ log.created_at }}</td>
-                                                    <td>{{ log.specialist.get_short_name }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </table>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-{% endblock %}
-
 {% block additional_js %}
     {{ block.super }}
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
     <script src="{% static 'dogovor_query/manager_search.js' %}"></script>
 {% endblock %}
 {% block additional_css %}
     {{ block.super }}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
     <link href="{% static 'dogovor_query/select2-bootstrap4.css' %}" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div class="container mt-3">
+        <form method="POST" id="form_search">
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-
+                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+                         role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="card m-3">
+                <div class="card-body">
+                    <input type="hidden" id="current_search_user_pk" value="{{ client.pk }}"/>
+                    <div class="input-group">
+                        {{ search_form.user_id }}
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="submit" id="button_search">Поиск</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if requests %}
+                <div class="card m-3">
+{#                    <div class="card-header">#}
+{#                        Функции работы с клиентом#}
+{#                    </div>#}
+                    <div class="card-body">
+                        <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                                data-target="#edit_client_data_modal">
+                            Редактировать данные клиента
+                        </button>
+                    </div>
+                </div>
+                <div class="card m-3">
+                    <div class="card-header">
+                        Заявки клиента
+                    </div>
+                    <div class="card-body">
+                        <div id="requests_collapse">
+                            {% for request in requests %}
+                                <div class="card m-3">
+                                    <div class="card-header">
+                                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                                data-target="#collapse{{ request.pk }}"
+                                                aria-expanded="true" aria-controls="collapse{{ request.pk }}">
+                                            Заявка {{ request.get_query_number }} от {{ request.created_at }} |
+                                            {{ request.question }} |
+                                            {% for log in request.requestlog_set.all %}
+                                                {% if forloop.last %}
+                                                    {% if log.status == 'created' %}
+                                                        <span class="text-warning">{{ log.get_status_verbose }}</span>
+                                                    {% elif log.status == 'activated' %}
+                                                        <span class="text-success">{{ log.get_status_verbose }}</span>
+                                                    {% elif log.status == 'processing' %}
+                                                        <span class="text-info">{{ log.get_status_verbose }}</span>
+                                                    {% elif log.status in 'closedcancelled' %}
+                                                        <span class="text-danger">{{ log.get_status_verbose }}</span>
+                                                    {% elif log.status == 'postponed' %}
+                                                        <span class="text-dark">{{ log.get_status_verbose }}</span>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </button>
+                                    </div>
+                                    <div id="collapse{{ request.pk }}" class="collapse"
+                                         aria-labelledby="heading{{ request.pk }}" data-parent="#requests_collapse">
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item">
+                                                    <span class="font-weight-bold">Тип:</span> {{ request.get_type_verbose }}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="font-weight-bold">Тема:</span> {{ request.question }}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="font-weight-bold">Примечания:</span>
+                                                    {% if request.note_set.all %}
+                                                        <table class="table table-hover table-sm mt-2">
+                                                            {% for note in request.note_set.all %}
+                                                                <tr>
+                                                                    <td>{{ forloop.counter }}</td>
+                                                                    <td>{{ note.text }}</td>
+                                                                    <td>{{ note.created_at }}</td>
+                                                                    <td>{{ note.specialist.get_short_name }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </table>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <span class="font-weight-bold">История изменений:</span>
+                                                    <table class="table table-hover table-sm mt-2">
+                                                        {% for log in request.requestlog_set.all %}
+                                                            <tr>
+                                                                <td>{{ forloop.counter }}</td>
+                                                                <td>{{ log.get_status_verbose }}</td>
+                                                                <td>{{ log.created_at }}</td>
+                                                                <td>{{ log.specialist.get_short_name }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="edit_client_data_modal" tabindex="-1"
+                     aria-labelledby="edit_client_data_modal"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="edit_client_data_modal">Редактировать данные клиента</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {{ user_data_edit_form.as_p }}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </form>
+    </div>
 {% endblock %}

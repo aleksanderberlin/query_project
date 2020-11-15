@@ -479,7 +479,7 @@ $(document).ready(function () {
                 },
                 action: function (e, dt, node, config) {
                     if (request_id.val().length !== 0) {
-                        add_note_modal.modal('show')
+                        add_note_modal.modal('show');
                     } else {
                         $.toast({
                             type: 'error',

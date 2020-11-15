@@ -248,15 +248,22 @@ def search_requests(request):
     if request.method == 'POST':
         search_form = SearchUser(request.POST)
         if search_form.is_valid():
-            user = User.objects.get(pk=request.POST['user'], removed_at__isnull=True)
+            user = User.objects.get(pk=search_form.cleaned_data['user_id'], removed_at__isnull=True)
             user_requests = Request.objects.filter(user=user, removed_at__isnull=True). \
                 prefetch_related('requestlog_set', 'requestlog_set__specialist', 'note_set', 'note_set__specialist')
-            return render(request, 'dogovor_query/manager_search_requests.html', {'form': search_form,
-                                                                                  'requests': user_requests,
-                                                                                  'client': user})
+            user_data_edit_form = UserForm(request.POST)
+            if user_data_edit_form.is_valid():
+                user_data_edit_form = UserForm(request.POST, instance=user)
+                user = user_data_edit_form.save()
+            else:
+                user_data_edit_form = UserForm(instance=user)
+            return render(request, 'dogovor_query/manager_search_requests.html',
+                          {'search_form': search_form, 'user_data_edit_form': user_data_edit_form,
+                           'requests': user_requests, 'client': user})
+
     else:
         search_form = SearchUser()
-        return render(request, 'dogovor_query/manager_search_requests.html', {'form': search_form})
+        return render(request, 'dogovor_query/manager_search_requests.html', {'search_form': search_form})
 
 
 @login_required(login_url='specialist_login')
@@ -323,7 +330,7 @@ def api_get_specialists_requests(request):
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_dashboard', raise_exception=True)
 def get_pivot_dashboard(request):
-    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()).\
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
         order_by('request_id', '-created_at').distinct('request')
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}

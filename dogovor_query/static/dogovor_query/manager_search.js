@@ -2,7 +2,7 @@ $(document).ready(function () {
 
     let current_search_user_pk = $('#current_search_user_pk')
 
-    let user_select = $('#id_user').select2({
+    let user_select = $('#id_user_id').select2({
         theme: 'bootstrap4',
         language: {
             errorLoading: function () {

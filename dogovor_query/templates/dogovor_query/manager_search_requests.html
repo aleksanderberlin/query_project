@@ -40,9 +40,9 @@
             </div>
             {% if requests %}
                 <div class="card m-3">
-{#                    <div class="card-header">#}
-{#                        Функции работы с клиентом#}
-{#                    </div>#}
+                    {#                    <div class="card-header">#}
+                    {#                        Функции работы с клиентом#}
+                    {#                    </div>#}
                     <div class="card-body">
                         <button type="button" class="btn btn-outline-info" data-toggle="modal"
                                 data-target="#edit_client_data_modal">
@@ -141,11 +141,20 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                {{ user_data_edit_form.as_p }}
+                                {% for field in user_data_edit_form %}
+                                    <div class="form-group row">
+                                        <div class="col-sm-4 col-form-label">
+                                            {{ field.label }}
+                                        </div>
+                                        <div class="col-sm-8">
+                                            {{ field }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                                <button type="submit" class="btn btn-success">Сохранить</button>
                             </div>
                         </div>
                     </div>

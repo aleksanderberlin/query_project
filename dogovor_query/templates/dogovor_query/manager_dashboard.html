@@ -7,7 +7,7 @@
     <div class="container-fluid mt-3" id="main_container">
         <div class="card mb-3">
             <div class="card-header">
-                <h5>Сводная информация на <span class="span_info" id="today_date"></span></h5>
+                <h5>Сводная информация на <span class="span_info" id="today_date"></span><span id="blink_dot_status"></span></h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -46,4 +46,5 @@
 {% block additional_css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'dogovor_query/user_form.css' %}">
+    <link rel="stylesheet" href="{% static 'dogovor_query/manager_dashboard.css' %}">
 {% endblock %}

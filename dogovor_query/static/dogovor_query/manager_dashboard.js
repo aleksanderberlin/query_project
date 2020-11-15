@@ -1,4 +1,5 @@
 let cards_container = $('#cards_container')
+let blink_dot_status = $('#blink_dot_status')
 
 $(document).ready(function () {
     function update_specialists_dashboard() {
@@ -36,7 +37,17 @@ $(document).ready(function () {
                     }
                     request_cards_html += "</div></div></div></div></div>"
                 })
-                cards_container.html(request_cards_html)
+                cards_container.html(request_cards_html);
+                if (blink_dot_status.html().includes("red") || blink_dot_status.html().length === 0) {
+                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
+                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"green\" /></svg>")
+                }
+            },
+            error: function(jqXHR, exception) {
+                if (blink_dot_status.html().includes("green") || blink_dot_status.html().length === 0) {
+                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
+                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"red\" /></svg>")
+                }
             }
         })
     }
@@ -52,6 +63,16 @@ $(document).ready(function () {
                 $('#requests_closed_count').text(data['closed'])
                 $('#requests_cancelled_count').text(data['cancelled'])
                 $('#today_date').text(data['today'])
+                if (blink_dot_status.html().includes("red") || blink_dot_status.html().length === 0) {
+                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
+                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"green\" /></svg>")
+                }
+            },
+            error: function(jqXHR, exception) {
+                if (blink_dot_status.html().includes("green") || blink_dot_status.html().length === 0) {
+                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
+                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"red\" /></svg>")
+                }
             }
         })
     }

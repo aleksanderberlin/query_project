@@ -4,3 +4,4 @@
 query_project.sock
 /specialist/migrations/
 /dogovor_query/migrations/
+__pycache__

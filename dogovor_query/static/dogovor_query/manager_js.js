@@ -98,7 +98,7 @@ $(document).ready(function () {
                     return moment(data, "DD.MM.YYYY HH:mm:ss").format('HH:mm')
                 }},
             {data: 'status'},
-            {data: 'notes'},
+            {data: 'notes'}
         ],
         "columnDefs": [
             {

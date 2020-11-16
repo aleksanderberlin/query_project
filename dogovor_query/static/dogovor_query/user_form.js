@@ -78,7 +78,6 @@ $(document).ready(function () {
                         div_card_new_request.hide()
                         attention_info.show()
                     }
-
                     $('#span_user_query_number').text(data.query_number)
                     $('#span_user_fio').text(data.fio)
                 } else if (data.current_status === 'created') {

@@ -564,11 +564,9 @@ $(document).ready(function () {
     timer.addEventListener('secondsUpdated', function (e) {
         span_timer.text(timer.getTimeValues().toString());
     });
-
     timer.addEventListener('started', function (e) {
         span_timer.text(timer.getTimeValues().toString());
     });
-
     timer.addEventListener('reset', function (e) {
         span_timer.text(timer.getTimeValues().toString());
     });

@@ -51,6 +51,7 @@ $(document).ready(function () {
             }
         })
     }
+
     function update_pivot_dashboard() {
         $.ajax({
             url: '/manager/api/requests/pivot/get',

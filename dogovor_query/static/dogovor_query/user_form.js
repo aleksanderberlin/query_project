@@ -88,6 +88,7 @@ $(document).ready(function () {
     }
 
     update_request_status();
+
     let status_auto_update = setInterval(function () {
         update_request_status();
     }, 5000);

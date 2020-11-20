@@ -190,8 +190,9 @@ def get_requests(request):
     else:
         end_date = timezone.now().date()
 
-    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date,
-                                                 created_at__lte=end_date). \
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True,
+                                                 created_at__range=(start_date, end_date +
+                                                                    datetime.timedelta(days=1))). \
         order_by('request_id', '-created_at').distinct('request')
     postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
     request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
@@ -365,8 +366,9 @@ def get_pivot_requests(request):
     else:
         end_date = timezone.now().date()
 
-    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date,
-                                                       created_at__lte=end_date). \
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True,
+                                                       created_at__range=(start_date,
+                                                                          end_date + datetime.timedelta(days=1))). \
         order_by('request_id', '-created_at').distinct('request')
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
@@ -430,7 +432,8 @@ def generate_start_end_date(input_date, type):
 def get_postponed_requests_id(start_date=None, end_date=None):
     start_date = generate_start_end_date(start_date, type='start')
     end_date = generate_start_end_date(end_date, type='end')
-    return set(RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date, created_at__lte=end_date,
+    return set(RequestLog.objects.filter(removed_at__isnull=True,
+                                         created_at__range=(start_date, end_date + datetime.timedelta(days=1)),
                                          status='postponed').values_list('request', flat=True))
 
 
@@ -477,8 +480,14 @@ class RequestWizard(SessionWizardView):
         data['first_name'] = ' '.join([word[0].upper() + word[1:] for word in data['first_name'].split(' ')])
         data['second_name'] = ' '.join([word[0].upper() + word[1:] for word in data['second_name'].split(' ')])
         data['last_name'] = ' '.join([word[0].upper() + word[1:] for word in data['last_name'].split(' ')])
-        user, created = User.objects.get_or_create(first_name=data['first_name'], second_name=data['second_name'],
-                                                   last_name=data['last_name'], birthday=data['birthday'])
+
+        try:
+            user, created = User.objects.get_or_create(first_name=data['first_name'], second_name=data['second_name'],
+                                                       last_name=data['last_name'], birthday=data['birthday'])
+        except User.MultipleObjectsReturned:
+            user = User.objects.filter(first_name=data['first_name'], second_name=data['second_name'],
+                                       last_name=data['last_name'], birthday=data['birthday'])[0]
+            created = False
 
         if created is True:
             user.phone_number = data['phone_number']

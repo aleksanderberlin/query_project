@@ -268,7 +268,12 @@ def search_user(request):
         if search_form.is_valid():
             user = User.objects.get(pk=search_form.cleaned_data['user_id'], removed_at__isnull=True)
             user_requests = Request.objects.filter(user=user, removed_at__isnull=True). \
-                prefetch_related('requestlog_set', 'requestlog_set__specialist', 'note_set', 'note_set__specialist')
+                prefetch_related(Prefetch('requestlog_set',
+                                          queryset=RequestLog.objects.filter(removed_at__isnull=True).
+                                          order_by('-created_at')),
+                                 Prefetch('note_set', queryset=Note.objects.filter(removed_at__isnull=True)),
+                                 'requestlog_set__specialist',
+                                 'note_set__specialist')
             user_data_edit_form = UserForm(request.POST)
             if user_data_edit_form.is_valid():
                 user_data_edit_form = UserForm(request.POST, instance=user)

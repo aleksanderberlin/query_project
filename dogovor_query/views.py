@@ -366,14 +366,13 @@ def get_pivot_requests(request):
     else:
         end_date = timezone.now().date()
 
-    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True,
-                                                       created_at__range=(start_date,
-                                                                          end_date + datetime.timedelta(days=1))). \
+    today_request_statuses = RequestLog.objects.filter(
+        removed_at__isnull=True, created_at__range=(start_date, end_date + datetime.timedelta(days=1))). \
         order_by('request_id', '-created_at').distinct('request')
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
     response = {'today': timezone.now().strftime('%d.%m.%Y %H:%M'), 'start_date': start_date.strftime('%d.%m.%Y'),
-                'end_date': end_date.strftime('%d.%m.%Y')}
+                'end_date': end_date.strftime('%d.%m.%Y'), 'query': today_request_statuses.query.__str__()}
     for status in RequestLog.RequestStatus.values:
         if status in totals:
             response[status] = totals[status]

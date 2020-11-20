@@ -90,7 +90,7 @@ class RequestLog(models.Model):
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
     class Meta:
-        ordering = ['created_at']
+        # ordering = ['created_at']
         get_latest_by = 'created_at'
         verbose_name = 'Статус заявки'
         verbose_name_plural = 'Статусы заявок'

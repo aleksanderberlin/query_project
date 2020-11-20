@@ -10,8 +10,7 @@ from django.utils import timezone
 import json
 from django.contrib import messages
 from django.db.models.functions import Concat
-from django.db.models import Value as V, Count
-from django.db.models import Prefetch
+from django.db.models import Value as V, Count, Prefetch
 from constance import config
 import re
 
@@ -235,7 +234,7 @@ def get_update_status(request, action, request_pk):
             if request.GET['status'] in RequestLog.RequestStatus.values:
                 current_request_log = RequestLog.objects.filter(request_id=request_pk)
                 if current_request_log:
-                    current_request_log = current_request_log[0]
+                    current_request_log = current_request_log.latest()
                     response['request_pk'] = current_request_log.request_id
                     if current_request_log.status == 'closed':
                         response['status'] = current_request_log.status
@@ -372,8 +371,11 @@ def get_pivot_requests(request):
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
     response = {'today': timezone.now().strftime('%d.%m.%Y %H:%M'), 'start_date': start_date.strftime('%d.%m.%Y'),
-                'end_date': end_date.strftime('%d.%m.%Y'), 'query': today_request_statuses.query.__str__(),
-                'totals': today_request_statuses.__str__()}
+                'end_date': end_date.strftime('%d.%m.%Y')}
+    if request.user.is_superuser:
+        response.update({
+            'query': today_request_statuses.query.__str__()
+        })
     for status in RequestLog.RequestStatus.values:
         if status in totals:
             response[status] = totals[status]

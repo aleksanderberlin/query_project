@@ -177,14 +177,14 @@ def get_requests(request):
         statuses = RequestLog.RequestStatus.values
 
     if 'start_date' in request.GET:
-        start_date = generate_start_end_date_from_string(request.GET['start_date'], 'start')
+        start_date = generate_start_end_date(request.GET['start_date'], 'start')
         if start_date is None:
             return HttpResponseBadRequest()
     else:
         start_date = datetime.date.min
 
     if 'end_date' in request.GET:
-        end_date = generate_start_end_date_from_string(request.GET['end_date'], 'end')
+        end_date = generate_start_end_date(request.GET['end_date'], 'end')
         if end_date is None:
             return HttpResponseBadRequest()
     else:

@@ -406,7 +406,7 @@ def generate_start_end_date(input_date, type):
                                 r"(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)\d{2})$")
         reg_match = date_regex.match(input_date)
         if reg_match:
-            splitted_date = list(map(int, input_date.split(reg_match[4])))
+            splitted_date = list(map(int, input_date.split(reg_match[1])))
             date_object = datetime.date(day=splitted_date[0], month=splitted_date[1], year=splitted_date[2])
         else:
             return None

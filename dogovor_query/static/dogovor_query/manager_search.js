@@ -31,6 +31,15 @@ $(document).ready(function () {
         minimumInputLength: 3,
     })
 
+    user_select.on('select2:select', function (e) {
+        let data = e.params.data;
+        $('#id_last_name').val(data.last_name)
+        $('#id_first_name').val(data.first_name)
+        $('#id_second_name').val(data.second_name)
+        $('#id_birthday').val(data.birthday)
+        $('#id_phone_number').val(data.phone_number)
+    })
+
     if (current_search_user_pk.val().length !== 0) {
         $.ajax({
             url: '/manager/api/user/get',

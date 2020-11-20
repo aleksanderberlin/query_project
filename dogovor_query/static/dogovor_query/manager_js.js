@@ -32,6 +32,11 @@ $(document).ready(function () {
         "scrollY": 450,
         "ajax": {
             url: 'api/requests/get?status=created',
+            method: 'GET',
+            data: {
+                'start_date': new Date().toLocaleDateString('ru-RU'),
+                'end_date': new Date().toLocaleDateString('ru-RU'),
+            },
             dataSrc: function (data) {
                 $('#postponed_amount').text(data.info.postponed_amount)
                 $('#created_amount').text(data.info.created_amount)

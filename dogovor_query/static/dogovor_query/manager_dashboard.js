@@ -56,6 +56,10 @@ $(document).ready(function () {
         $.ajax({
             url: '/manager/api/requests/pivot/get',
             method: 'GET',
+            data: {
+                'start_date': new Date().toLocaleDateString('ru-RU'),
+                'end_date': new Date().toLocaleDateString('ru-RU')
+            },
             success: function (response) {
                 let data = JSON.parse(response)
                 $('#requests_all_count').text(data['created'] + data['activated'] + data['processing'] + data['closed'] + data['cancelled'] + data['postponed'])

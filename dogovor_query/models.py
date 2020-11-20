@@ -101,6 +101,9 @@ class RequestLog(models.Model):
     def get_status_verbose(self):
         return self.RequestStatus.labels[self.RequestStatus.values.index(self.status)]
 
+    def get_postponed_requests_id(self):
+        return RequestLog.objects.filter(removed_at__isnull=True, status='postponed').values('request_id')
+
 
 class Note(models.Model):
     request = models.ForeignKey(Request, on_delete=models.CASCADE)

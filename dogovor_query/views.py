@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required, permission_required
 from formtools.wizard.views import SessionWizardView
 from .forms import *
@@ -13,6 +13,7 @@ from django.db.models.functions import Concat
 from django.db.models import Value as V, Count
 from django.db.models import Prefetch
 from constance import config
+import re
 
 FORMS = [
     ('user', RequestFormUser),
@@ -53,7 +54,8 @@ def main_page(request):
             response = redirect('main_page')
             response.delete_cookie('user_uid')
             return response
-        user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
+        user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                              created_at__date=timezone.now().date())
         if user_request:
             user_request = user_request.latest()
             user_request_status = user_request.requestlog_set
@@ -70,11 +72,11 @@ def api_query_position(request):
         user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         response['user_uid'] = request.COOKIES['user_uid']
         user_request = Request.objects.filter(user=user, removed_at__isnull=True,
-                                              created_at__gte=timezone.now().date())
+                                              created_at__date=timezone.now().date())
         if user_request:
             user_request = user_request.latest()
             user_request_status = user_request.requestlog_set.latest()
-            request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()) \
+            request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__date=timezone.now().date()) \
                 .order_by('request_id', '-created_at').distinct('request')
 
             people_before_amount = RequestLog.objects.filter(pk__in=request_logs,
@@ -97,7 +99,8 @@ def user_cancel_request(request):
     if 'user_uid' in request.COOKIES:
         user = get_object_or_404(User, user_uid=request.COOKIES['user_uid'], removed_at__isnull=True)
         response['user_uid'] = request.COOKIES['user_uid']
-        user_request = Request.objects.filter(user=user, removed_at__isnull=True, created_at__gte=timezone.now().date())
+        user_request = Request.objects.filter(user=user, removed_at__isnull=True,
+                                              created_at__date=timezone.now().date())
         if user_request:
             user_request = user_request.latest()
             user_request_status = user_request.requestlog_set.latest()
@@ -120,7 +123,7 @@ def index(request):
 
     statuses = ['activated', 'processing']
 
-    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__date=timezone.now().date(),
                                                  specialist=request.user). \
         order_by('request_id', '-created_at').distinct('request')
     current_request_log = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
@@ -173,7 +176,22 @@ def get_requests(request):
     else:
         statuses = RequestLog.RequestStatus.values
 
-    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+    if 'start_date' in request.GET:
+        start_date = generate_start_end_date_from_string(request.GET['start_date'], 'start')
+        if start_date is None:
+            return HttpResponseBadRequest()
+    else:
+        start_date = datetime.date.min
+
+    if 'end_date' in request.GET:
+        end_date = generate_start_end_date_from_string(request.GET['end_date'], 'end')
+        if end_date is None:
+            return HttpResponseBadRequest()
+    else:
+        end_date = timezone.now().date()
+
+    all_request_logs = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date,
+                                                 created_at__lte=end_date). \
         order_by('request_id', '-created_at').distinct('request')
     postponed_amount = RequestLog.objects.filter(pk__in=all_request_logs, status='postponed').count()
     request_logs = RequestLog.objects.filter(pk__in=all_request_logs).filter(status__in=statuses). \
@@ -244,7 +262,7 @@ def get_update_status(request, action, request_pk):
 
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_query', raise_exception=True)
-def search_requests(request):
+def search_user(request):
     if request.method == 'POST':
         search_form = SearchUser(request.POST)
         if search_form.is_valid():
@@ -288,7 +306,9 @@ def manage_user(request, action):
         if 'q' in request.GET:
             users = User.objects.annotate(fio=Concat('last_name', V(' '), 'first_name', V(' '), 'second_name')). \
                 filter(fio__icontains=request.GET['q'], removed_at__isnull=True)
-            response = [{'id': user.pk, 'text': user.__str__(), 'birthday': user.birthday.strftime('%d.%m.%Y')}
+            response = [{'id': user.pk, 'text': user.__str__(), 'birthday': user.birthday.strftime('%d.%m.%Y'),
+                         'last_name': user.last_name, 'first_name': user.first_name, 'second_name': user.second_name,
+                         'phone_number': user.phone_number}
                         for user in users]
             return HttpResponse(json.dumps({'results': response}))
 
@@ -302,7 +322,8 @@ def manager_dashboard(request):
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_dashboard', raise_exception=True)
 def api_get_specialists_requests(request):
-    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True,
+                                                       created_at__date=timezone.now().date()). \
         order_by('request_id', '-created_at').distinct('request')
 
     specialists = Specialist.objects.all().order_by('room', 'last_name').prefetch_related(
@@ -329,12 +350,28 @@ def api_get_specialists_requests(request):
 
 @login_required(login_url='specialist_login')
 @permission_required('dogovor_query.view_dashboard', raise_exception=True)
-def get_pivot_dashboard(request):
-    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date()). \
+def get_pivot_requests(request):
+    if 'start_date' in request.GET:
+        start_date = generate_start_end_date(request.GET['start_date'], 'start')
+        if start_date is None:
+            return HttpResponseBadRequest()
+    else:
+        start_date = datetime.date.min
+
+    if 'end_date' in request.GET:
+        end_date = generate_start_end_date(request.GET['end_date'], 'end')
+        if end_date is None:
+            return HttpResponseBadRequest()
+    else:
+        end_date = timezone.now().date()
+
+    today_request_statuses = RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date,
+                                                       created_at__lte=end_date). \
         order_by('request_id', '-created_at').distinct('request')
     totals = {item['status']: item['status__count'] for item in
               RequestLog.objects.filter(pk__in=today_request_statuses).values('status').annotate(Count('status'))}
-    response = {'today': timezone.now().strftime('%d.%m.%Y %H:%M')}
+    response = {'today': timezone.now().strftime('%d.%m.%Y %H:%M'), 'start_date': start_date.strftime('%d.%m.%Y'),
+                'end_date': end_date.strftime('%d.%m.%Y')}
     for status in RequestLog.RequestStatus.values:
         if status in totals:
             response[status] = totals[status]
@@ -359,6 +396,41 @@ def is_university_request(wizard):
             return True
         else:
             return False
+
+
+def generate_start_end_date(input_date, type):
+    if isinstance(input_date, str):
+        date_regex = re.compile(r"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))"
+                                r"(?:(?:1[6-9]|[2-9]\d)\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)(?:0[48]|[2468]"
+                                r"[048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])"
+                                r"(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)\d{2})$")
+        if reg_match := date_regex.match(input_date):
+            splitted_date = list(map(int, input_date.split(reg_match[4])))
+            date_object = datetime.date(day=splitted_date[0], month=splitted_date[1], year=splitted_date[2])
+        else:
+            return None
+    elif isinstance(input_date, datetime.date):
+        date_object = input_date
+    elif input_date is None:
+        if type == 'start':
+            date_object = datetime.datetime.min
+        elif type == 'end':
+            date_object = timezone.now().date()
+        else:
+            return None
+    else:
+        return None
+    if type == 'end':
+        if date_object > timezone.now().date():
+            date_object = timezone.now().date()
+    return date_object
+
+
+def get_postponed_requests_id(start_date=None, end_date=None):
+    start_date = generate_start_end_date(start_date, type='start')
+    end_date = generate_start_end_date(end_date, type='end')
+    return set(RequestLog.objects.filter(removed_at__isnull=True, created_at__gte=start_date, created_at__lte=end_date,
+                                         status='postponed').values_list('request', flat=True))
 
 
 class RequestWizard(SessionWizardView):
@@ -414,7 +486,7 @@ class RequestWizard(SessionWizardView):
             if user.phone_number != data['phone_number']:
                 user.phone_number = data['phone_number']
                 user.save()
-            today_requests = Request.objects.filter(removed_at__isnull=True, created_at__gte=timezone.now().date(),
+            today_requests = Request.objects.filter(removed_at__isnull=True, created_at__date=timezone.now().date(),
                                                     user=user)
             today_requests_statuses = RequestLog.objects.filter(removed_at__isnull=True, request__in=today_requests). \
                 order_by('request_id', '-created_at').distinct('request')
@@ -441,7 +513,7 @@ class RequestWizard(SessionWizardView):
             if prop in data:
                 data.pop(prop)
 
-        last_requests = Request.objects.filter(type=data['type'], created_at__gte=timezone.now().date())
+        last_requests = Request.objects.filter(type=data['type'], created_at__date=timezone.now().date())
         if last_requests:
             new_number = last_requests.order_by('-number')[0].number + 1
         else:

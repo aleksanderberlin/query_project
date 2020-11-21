@@ -90,7 +90,6 @@ class RequestLog(models.Model):
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
     class Meta:
-        # ordering = ['created_at']
         get_latest_by = 'created_at'
         verbose_name = 'Статус заявки'
         verbose_name_plural = 'Статусы заявок'
@@ -100,9 +99,6 @@ class RequestLog(models.Model):
 
     def get_status_verbose(self):
         return self.RequestStatus.labels[self.RequestStatus.values.index(self.status)]
-
-    def get_postponed_requests_id(self):
-        return RequestLog.objects.filter(removed_at__isnull=True, status='postponed').values('request_id')
 
 
 class Note(models.Model):

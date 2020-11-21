@@ -17,6 +17,7 @@
                             </a>
                         </li>
                     {% endif %}
+                    {% if perms.dogovor_query.search_requests %}
                     <li class="nav-item {% if url_name == 'search_user' %}active{% endif %}  ml-2 mr-2">
                         <a class="nav-link" href="{% url 'search_user' %}">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor"
@@ -29,6 +30,7 @@
                             Поиск
                         </a>
                     </li>
+                    {% endif %}
                     {% if perms.dogovor_query.view_query %}
                         <li class="nav-item {% if url_name == 'query_list' %}active{% endif %}  ml-2 mr-2">
                             <a class="nav-link" href="{% url 'query_list' %}">

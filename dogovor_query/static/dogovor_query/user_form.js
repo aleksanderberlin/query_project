@@ -30,7 +30,7 @@ $(document).ready(function () {
                         div_user_status.removeClass().addClass('badge badge-warning')
                         div_card_pretty_status_info.removeClass().addClass('card bg-light mt-2 mb-2')
                         if (data.people_before !== 0) {
-                            div_card_pretty_status_info.find('div:nth-child(1)').html('Перед вами <span class="span_info" id="span_user_before_amount">' + data.people_before + '</span> чел.')
+                            div_card_pretty_status_info.find('div:nth-child(1)').html('Перед вами <span class="span_info" id="span_user_before_amount">' + data.people_before + '</span> чел. в очереди')
                         } else {
                             div_card_pretty_status_info.find('div:nth-child(1)').html('Перед Вами нет людей в очереди. Совсем скоро специалист пригласит Вас в кабинет! Ожидайте, пожалуйста.')
                         }

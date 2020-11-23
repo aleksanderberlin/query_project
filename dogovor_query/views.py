@@ -339,7 +339,7 @@ def api_get_specialists_requests(request):
         Prefetch('requestlog_set__request__user', queryset=User.objects.filter(removed_at__isnull=True)))
 
     response = [{'specialist_fio': specialist.get_full_name(), 'specialist_room': specialist.room,
-                 'specialist_table': specialist.table_number,
+                 'specialist_table': specialist.table_number, 'specialist_online': specialist.online(),
                  'requests': [
                      {'request_pk': user_request_log.request.pk,
                       'client_fio': user_request_log.request.user.__str__(),

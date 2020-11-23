@@ -14,18 +14,18 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
-    def __str__(self):
-        if self.second_name:
-            return self.last_name + ' ' + self.first_name + ' ' + self.second_name
-        else:
-            return self.last_name + ' ' + self.first_name
-
     class Meta:
         permissions = [
             ('search_requests', 'Искать по пользователям')
         ]
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
+
+    def __str__(self):
+        if self.second_name:
+            return self.last_name + ' ' + self.first_name + ' ' + self.second_name
+        else:
+            return self.last_name + ' ' + self.first_name
 
 
 class Request(models.Model):

@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.cache import cache
+import datetime
+from django.conf import settings
 
 
 class Specialist(AbstractUser):
@@ -23,3 +26,17 @@ class Specialist(AbstractUser):
 
     def get_short_name(self):
         return self.last_name + ' ' + self.first_name[0] + '.'
+
+    def last_seen(self):
+        return cache.get('seen_%s' % self.username)
+
+    def online(self):
+        if self.last_seen():
+            now = datetime.datetime.now()
+            if now > self.last_seen() + datetime.timedelta(
+                    seconds=settings.USER_ONLINE_TIMEOUT):
+                return False
+            else:
+                return True
+        else:
+            return False

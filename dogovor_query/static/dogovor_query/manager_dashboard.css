@@ -1,3 +1,5 @@
+/* Blink dot animation */
+
 .blinking {
   -webkit-animation: 1s blink ease infinite;
   -moz-animation: 1s blink ease infinite;

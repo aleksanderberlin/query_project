@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-    <div class="container-fluid d-flex justify-content-center align-items-center">
+    <div class="container-fluid d-flex justify-content-center align-items-center center-div">
         <div class="card">
             <h5 class="card-header">Панель управления электронной очередью СПбГУТ</h5>
             <div class="card-body">
@@ -19,4 +20,7 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block additional_css %}
+    <link rel="stylesheet" href="{% static 'specialist/specialist_login.css' %}"/>
 {% endblock %}

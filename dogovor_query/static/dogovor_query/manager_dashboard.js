@@ -11,8 +11,13 @@ $(document).ready(function () {
                 let request_cards_html = ''
                 data.forEach(function (specialist, i, obj) {
                     request_cards_html += "<div class=\"col mb-4\"><div class=\"card border-info\">" +
-                        "<div class=\"card-header\"><h5>" + specialist.specialist_fio + "</h5></div>" +
-                        "<div class=\"card-body\">" +
+                        "<div class=\"card-header\"><h5 class='d-inline'>" + specialist.specialist_fio + "</h5>"
+                    if (specialist.specialist_online) {
+                        request_cards_html += '<span class="d-inline float-right badge badge-pill badge-success">Онлайн</span>'
+                    } else {
+                        request_cards_html += '<span class="d-inline float-right badge badge-pill badge-danger">Оффлайн</span>'
+                    }
+                    request_cards_html += "</div><div class=\"card-body\">" +
                         "<ul class=\"list-group list-group-horizontal-sm mb-3\">" +
                         "<li class=\"list-group-item\">Кабинет: " + specialist.specialist_room + "</li>" +
                         "<li class=\"list-group-item\">Стол: " + specialist.specialist_table + "</li>" +
@@ -38,17 +43,7 @@ $(document).ready(function () {
                     request_cards_html += "</div></div></div></div></div>"
                 })
                 cards_container.html(request_cards_html);
-                if (blink_dot_status.html().includes("red") || blink_dot_status.html().length === 0) {
-                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
-                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"green\" /></svg>")
-                }
             },
-            error: function(jqXHR, exception) {
-                if (blink_dot_status.html().includes("green") || blink_dot_status.html().length === 0) {
-                    blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
-                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"red\" /></svg>")
-                }
-            }
         })
     }
 
@@ -70,13 +65,13 @@ $(document).ready(function () {
                 $('#today_date').text(data['today'])
                 if (blink_dot_status.html().includes("red") || blink_dot_status.html().length === 0) {
                     blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
-                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"green\" /></svg>")
+                        "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"green\" /></svg>")
                 }
             },
-            error: function(jqXHR, exception) {
+            error: function (jqXHR, exception) {
                 if (blink_dot_status.html().includes("green") || blink_dot_status.html().length === 0) {
                     blink_dot_status.html("<svg height=\"25\" width=\"25\" class=\"blinking\">" +
-                    "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"red\" /></svg>")
+                        "<circle cx=\"15\" cy=\"10\" r=\"5\" fill=\"red\" /></svg>")
                 }
             }
         })

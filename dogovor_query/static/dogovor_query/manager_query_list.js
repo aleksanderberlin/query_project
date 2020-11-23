@@ -91,12 +91,12 @@ $(document).ready(function () {
         },
         columns: [
             {data: 'pk'},
-            {data: 'number', width: '10%'},
-            {data: 'fio', width: '15%'},
-            {data: 'birthday', width: '15%'},
+            {data: 'number', width: '7%'},
+            {data: 'fio', width: '20%'},
+            {data: 'birthday', width: '10%'},
             {data: 'phone_number', width: '15%'},
             {data: 'type', width: '10%'},
-            {data: 'question', width: '25%'},
+            {data: 'question', width: '28%'},
             {
                 data: 'created_at', width: '10%',
                 render: function(data, type, row) {

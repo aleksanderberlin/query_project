@@ -2,6 +2,7 @@
 /query_project/settings.py
 .DS_Store
 query_project.sock
-/specialist/migrations/
-/dogovor_query/migrations/
+migrations/
 __pycache__
+/static/
+/.idea/

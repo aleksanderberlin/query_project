@@ -12,11 +12,13 @@ $(document).ready(function () {
                 data.forEach(function (specialist, i, obj) {
                     request_cards_html += "<div class=\"col mb-4\"><div class=\"card border-info\">" +
                         "<div class=\"card-header\"><h5 class='d-inline'>" + specialist.specialist_fio + "</h5>"
+
                     if (specialist.specialist_online) {
                         request_cards_html += '<span class="d-inline float-right badge badge-pill badge-success">Онлайн</span>'
                     } else {
                         request_cards_html += '<span class="d-inline float-right badge badge-pill badge-danger">Оффлайн</span>'
                     }
+
                     request_cards_html += "</div><div class=\"card-body\">" +
                         "<ul class=\"list-group list-group-horizontal-sm mb-3\">" +
                         "<li class=\"list-group-item\">Кабинет: " + specialist.specialist_room + "</li>" +

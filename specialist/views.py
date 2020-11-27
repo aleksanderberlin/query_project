@@ -27,6 +27,7 @@ def specialist_login(request):
                     return render(request, 'specialist/login.html', {'form': form})
             else:
                 form = LoginForm(request.POST)
+                messages.error(request, 'Неправильные имя пользователя и/или пароль')
                 return render(request, 'specialist/login.html', {'form': form})
     else:
         if request.user.is_authenticated:

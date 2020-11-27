@@ -2,11 +2,18 @@
 {% load static %}
 {% block content %}
     <div class="container-fluid d-flex justify-content-center align-items-center center-div">
-        <div class="card">
+        <div class="card mt-5">
             <h5 class="card-header">Панель управления электронной очередью СПбГУТ</h5>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     <div class="form-group">
                         <label for="exampleInputEmail1">{{ form.username.label }}</label>
                         {{ form.username }}

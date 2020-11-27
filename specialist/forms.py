@@ -29,8 +29,9 @@ class SettingsForm(forms.ModelForm):
         model = Specialist
         fields = ['first_name', 'last_name', 'room', 'table_number']
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
-            'room': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Кабинет'}),
-            'table_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Номер стола'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя', 'required': 'True'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия', 'required': 'True'}),
+            'room': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Кабинет', 'required': 'True'}),
+            'table_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Номер стола',
+                                                   'required': 'True'}),
         }

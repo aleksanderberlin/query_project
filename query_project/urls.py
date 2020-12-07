@@ -25,7 +25,7 @@ urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico'), name='favicon'),
     path('', include('dogovor_query.urls')),
     path('specialist/', include('specialist.urls')),
-    path('pretensions/', include('pretensions.urls')),
+    # path('pretensions/', include('pretensions.urls')),
     path('server/', include('server.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

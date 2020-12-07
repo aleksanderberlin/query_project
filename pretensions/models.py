@@ -35,6 +35,11 @@ class Specialty(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['spec_code'], name='unique_spec_code'),
+        ]
+
     def __str__(self):
         return self.spec_code + ' ' + self.spec_name
 

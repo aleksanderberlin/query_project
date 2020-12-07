@@ -142,7 +142,7 @@
                             {% if current_key_rate %}
                                 <ul class="list-group list-group-horizontal ml-3 mr-3">
                                     <li class="list-group-item py-1">Ключевая ставка ЦБ РФ</li>
-                                    <li class="list-group-item list-group-item-info py-1">{{ current_key_rate.key_rate }}</li>
+                                    <li class="list-group-item list-group-item-info py-1" id="key_rate_li">{{ current_key_rate.key_rate }}</li>
                                 </ul>
                                 <ul class="list-group list-group-horizontal ml-3 mr-3">
                                     <li class="list-group-item py-1">Доля от ключевой ставки</li>
@@ -150,8 +150,7 @@
                                 </ul>
                             {% else %}
                                 <ul class="list-group list-group-horizontal ml-3 mr-3">
-                                    <li class="list-group-item list-group-item-danger py-1">Значения ключевой ставки
-                                        неактуальны! Обратитесь к администратору.
+                                    <li class="list-group-item list-group-item-danger py-1">Значение ключевой ставки ЦБ РФ неактуально! Обратитесь к администратору.
                                     </li>
                                 </ul>
                             {% endif %}

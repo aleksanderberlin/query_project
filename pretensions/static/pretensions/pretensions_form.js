@@ -57,16 +57,22 @@ $(document).ready(function () {
 
     if (checkbox_is_without_peni.is(':checked')) {
         $('#key_rate_info').hide();
-        $('#create_pretension').removeAttr("disabled");
+        $('#create_pretension').removeAttr("disabled")
+    } else {
+        if ($('#key_rate_li').text() === "") {
+            $('#create_pretension').attr("disabled", true);
+        }
     }
 
     checkbox_is_without_peni.change(function () {
         if (this.checked) {
             $('#key_rate_info').hide();
-            $('#create_pretension').attr("disabled", true);
+            $('#create_pretension').removeAttr("disabled");
         } else {
             $('#key_rate_info').show();
-            $('#create_pretension').removeAttr("disabled");
+            if ($('#key_rate_li').text() === "") {
+                $('#create_pretension').attr("disabled", true);
+            }
         }
     });
 

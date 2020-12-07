@@ -159,7 +159,7 @@ class PretensionsFormView(View):
                 doc.save(full_doc_path)
 
                 form.save(commit=False)
-                form.creator = request.user
+                form.creator = request.user.pk
                 form.pretension_file = full_doc_path
                 form.save()
 

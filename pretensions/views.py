@@ -8,7 +8,6 @@ from petrovich.main import Petrovich
 from petrovich.enums import Case, Gender
 from num2words import num2words
 from django.utils import dateformat
-import datetime
 import re
 import math
 import os

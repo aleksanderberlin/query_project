@@ -150,11 +150,11 @@ class PretensionsFormView(View):
                 doc_filename = cleaned_data['buyer_last_name'] + '_' + cleaned_data['buyer_first_name'][0] + \
                                (cleaned_data['buyer_second_name'][0] if cleaned_data['buyer_second_name'][0] else '')
                 if not cleaned_data['is_buyer_student_same']:
-                    doc_filename += '(' + cleaned_data['student_last_name'] + '_' + \
-                                    cleaned_data['student_first_name'][0] + (cleaned_data['student_second_name'][0]
-                                                                             if cleaned_data['student_second_name'][0]
-                                                                             else '') + ')'
-                doc_filename += '_' + cleaned_data['contract_number'] + '.docx'
+                    doc_filename += cleaned_data['student_last_name'] + '_' + cleaned_data['student_first_name'][0] + \
+                                    (cleaned_data['student_second_name'][0] if cleaned_data['student_second_name'][0]
+                                     else '')
+                doc_filename = "".join([x if x.isalnum() else "_"
+                                        for x in doc_filename + '_' + cleaned_data['contract_number']]) + '.docx'
                 full_doc_path = os.path.join(settings.MEDIA_ROOT, settings.PRETENSIONS_DIR, doc_filename)
                 doc.save(full_doc_path)
 

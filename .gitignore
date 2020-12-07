@@ -6,3 +6,4 @@ migrations/
 __pycache__
 /static/
 /.idea/
+/media/

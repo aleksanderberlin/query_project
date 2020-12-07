@@ -1,0 +1,189 @@
+{% extends 'specialist/specialist_topbar.html' %}
+{% load static %}
+{% block title %}
+    Претензии | Договорный отдел СПбГУТ
+{% endblock %}
+{% block additional_js %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script src="{% static 'pretensions/jquery.suggestions.min.js' %}"></script>
+    <script src="{% static 'pretensions/pretensions_form.js' %}"></script>
+{% endblock %}
+{% block additional_css %}
+    {{ block.super }}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/suggestions-jquery@20.3.0/dist/css/suggestions.min.css" rel="stylesheet"/>
+    <link href="{% static 'dogovor_query/select2-bootstrap4.css' %}" rel="stylesheet"/>
+    <link href="{% static 'pretensions/pretensions_form.css' %}" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-
+                    {% if message.level_tag != 'error' %}{{ message.level_tag }}{% else %}danger{% endif %} m-2"
+                     role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" id="pretension_form">
+            {% csrf_token %}
+            {{ form.errors }}
+            <div class="card-columns">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Заказчик</span>
+                            </div>
+                            {{ form.buyer_last_name }}
+                            {{ form.buyer_first_name }}
+                            {{ form.buyer_second_name }}
+                            <div class="input-group-append">
+                                {{ form.buyer_sex }}
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-horizontal mt-3">
+                            <li class="list-group-item list-group-item-info py-1">{{ form.is_buyer_student_same }}</li>
+                            <li class="list-group-item py-1 w-100">{{ form.is_buyer_student_same.label }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" id="student_fio">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Обучающийся</span>
+                            </div>
+                            {{ form.student_last_name }}
+                            {{ form.student_first_name }}
+                            {{ form.student_second_name }}
+                            <div class="input-group-append">
+                                {{ form.student_sex }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Договор</span>
+                            </div>
+                            {{ form.contract_number }}
+                            {{ form.contract_date }}
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">ОП</span>
+                            </div>
+                            {{ form.specialty }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Приказ</span>
+                            </div>
+                            {{ form.prikaz_number }}
+                            {{ form.prikaz_date }}
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Дата отчисления</span>
+                            </div>
+                            {{ form.otch_date }}
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Причина отчисления</span>
+                            </div>
+                            <div class="ml-3">
+                                <div>
+                                    {{ form.otch_reason }}
+                                </div>
+                                <div class="mt-2">
+                                    {{ form.another_vuz }}
+                                </div>
+                                <div class="mt-2">
+                                    {{ form.other_text }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Адрес</h5>
+                        {{ form.address }}
+                        {{ form.postal_code }}
+                        {{ form.address_first_line }}
+                        {{ form.address_second_line }}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Задолженность</span>
+                            </div>
+                            {{ form.debt_sum }}
+                            {{ form.debt_date }}
+                        </div>
+                        <ul class="list-group list-group-horizontal mt-3">
+                            <li class="list-group-item list-group-item-info py-1">{{ form.is_without_peni }}</li>
+                            <li class="list-group-item py-1 w-100">{{ form.is_without_peni.label }}</li>
+                        </ul>
+                        <div class="row mt-3 justify-content-center" id="key_rate_info">
+                            <ul class="list-group list-group-horizontal ml-3 mr-3">
+                                <li class="list-group-item py-1">Ключевая ставка ЦБ РФ</li>
+                                <li class="list-group-item list-group-item-info py-1">{{ current_key_rate.key_rate }}</li>
+                            </ul>
+                            <ul class="list-group list-group-horizontal ml-3 mr-3">
+                                <li class="list-group-item py-1">Доля от ключевой ставки</li>
+                                <li class="list-group-item list-group-item-info py-1">{{ current_key_rate.peni_part_key_rate }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Дата отправки</span>
+                            </div>
+                            {{ form.send_date }}
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Исполнитель</span>
+                            </div>
+                            {{ form.performer }}
+                        </div>
+                        <div class="input-group mt-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Руководитель</span>
+                            </div>
+                            {{ form.director }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary">Сформировать претензию</button>
+                        {% if filename %}
+                            <div class="float-right">
+                                Документ успешно сформирован.
+                                <a class="btn btn-success" href="{% get_media_prefix %}{{ filename }}">Скачать</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

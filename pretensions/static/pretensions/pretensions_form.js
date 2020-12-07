@@ -57,13 +57,16 @@ $(document).ready(function () {
 
     if (checkbox_is_without_peni.is(':checked')) {
         $('#key_rate_info').hide();
+        $('#create_pretension').removeAttr("disabled");
     }
 
     checkbox_is_without_peni.change(function () {
         if (this.checked) {
             $('#key_rate_info').hide();
+            $('#create_pretension').attr("disabled", true);
         } else {
             $('#key_rate_info').show();
+            $('#create_pretension').removeAttr("disabled");
         }
     });
 

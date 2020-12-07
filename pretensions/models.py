@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+import os
 
 
 class KeyRate(models.Model):
@@ -118,7 +119,8 @@ class Pretension(models.Model):
                                   default=Performer.objects.filter(is_default=True).first().pk)
     director = models.ForeignKey(Director, on_delete=models.RESTRICT, verbose_name='Руководитель',
                                  default=Director.objects.filter(is_default=True).first().pk)
-    pretension_file = models.FilePathField(verbose_name='Путь к файлу')
+    pretension_file = models.FilePathField(path=os.path.join(settings.MEDIA_ROOT, settings.PRETENSIONS_DIR),
+                                           verbose_name='Путь к файлу')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')

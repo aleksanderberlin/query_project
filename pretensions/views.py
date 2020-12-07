@@ -139,7 +139,7 @@ class PretensionsFormView(View):
 
                 # PERFORMER AND DIRECTOR SIGNATURE
                 context.update({'performer_fio': cleaned_data['performer'].__str__(),
-                                'performer_post': cleaned_data['performer'].position,
+                                'performer_post': cleaned_data['performer'].position.lower(),
                                 'performer_phone': re.sub(r'8(\d{3})(\d{3})(\d{2})(\d{2})', r'8 (\1) \2-\3-\4',
                                                           cleaned_data['performer'].phone_number),
                                 'director_post': cleaned_data['director'].position,
@@ -155,7 +155,7 @@ class PretensionsFormView(View):
                                                                              if cleaned_data['student_second_name'][0]
                                                                              else '') + ')'
                 doc_filename += '_' + cleaned_data['contract_number'] + '.docx'
-                full_doc_path = os.path.join(settings.MEDIA_ROOT, 'pretensions_docx/' + doc_filename)
+                full_doc_path = os.path.join(settings.MEDIA_ROOT, settings.PRETENSIONS_DIR, doc_filename)
                 doc.save(full_doc_path)
 
                 form.save(commit=False)

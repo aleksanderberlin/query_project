@@ -101,19 +101,19 @@ class Pretension(models.Model):
                                    default=OtchReason.choices[0])
     contract_number = models.CharField(max_length=20, verbose_name='Номер договора')
     contract_date = models.DateField(verbose_name='Дата договора')
-    specialty = models.ForeignKey(Specialty, on_delete=models.RESTRICT, verbose_name='Специальность',
-                                  default=Specialty.objects.all().first().pk)
+    # specialty = models.ForeignKey(Specialty, on_delete=models.RESTRICT, verbose_name='Специальность',
+    #                               default=Specialty.objects.all().first().pk)
     address = models.CharField(max_length=300, verbose_name='Адрес')
     debt_sum = models.FloatField(verbose_name='Сумма задолженности')
     debt_date = models.DateField(verbose_name='Дата возникновения задолженности')
     send_date = models.DateField(verbose_name='Дата отправки')
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, verbose_name='Создатель',
                                 blank=True, null=True)
-    performer = models.ForeignKey(Performer, on_delete=models.RESTRICT, verbose_name='Исполнитель',
-                                  default=Performer.objects.filter(is_default=True).first().pk)
-    director = models.ForeignKey(Director, on_delete=models.RESTRICT, verbose_name='Руководитель',
-                                 default=Director.objects.filter(is_default=True).first().pk)
-    pretension_file = models.FilePathField(path=settings.PRETENSIONS_ABS_PATH, verbose_name='Путь к файлу')
+    # performer = models.ForeignKey(Performer, on_delete=models.RESTRICT, verbose_name='Исполнитель',
+    #                               default=Performer.objects.filter(is_default=True).first().pk)
+    # director = models.ForeignKey(Director, on_delete=models.RESTRICT, verbose_name='Руководитель',
+    #                              default=Director.objects.filter(is_default=True).first().pk)
+    pretension_file = models.FilePathField(verbose_name='Путь к файлу')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     removed_at = models.DateTimeField(blank=True, null=True, verbose_name='Дата удаления')

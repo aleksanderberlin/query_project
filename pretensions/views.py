@@ -9,6 +9,7 @@ from petrovich.main import Petrovich
 from petrovich.enums import Case, Gender
 from num2words import num2words
 from django.utils import dateformat
+from django.utils import timezone
 import re
 import math
 import os
@@ -40,8 +41,8 @@ class PretensionsFormView(View):
     form = PretensionForm
     template_name = 'pretensions/pretensions_form.html'
     today = timezone.now().date()
-    current_key_rate = KeyRate.objects.filter(Q(end_date__isnull=True) | Q(end_date__lte=today),
-                                              Q(start_date__gte=today), Q(removed_at__isnull=True)).first()
+    current_key_rate = KeyRate.objects.filter(Q(end_date__isnull=True) | Q(end_date__gte=today),
+                                              Q(start_date__lte=today), Q(removed_at__isnull=True)).first()
 
     def get(self, request):
         return render(request, self.template_name, {'form': self.form(), 'current_key_rate': self.current_key_rate,

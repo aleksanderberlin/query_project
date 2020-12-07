@@ -141,7 +141,7 @@ class PretensionsFormView(View):
                                                       cleaned_data['performer'].phone_number),
                             'director_post': cleaned_data['director'].position,
                             'director_sign_fio': cleaned_data['director'].get_sign_name()})
-            
+
             # DOC RENDER AND SAVE
             doc.render(context)
             doc_filename = cleaned_data['buyer_last_name'] + '_' + cleaned_data['buyer_first_name'][0] + \

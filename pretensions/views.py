@@ -40,7 +40,7 @@ class PretensionsFormView(View):
     template_name = 'pretensions/pretensions_form.html'
     today = timezone.now().date()
     current_key_rate = KeyRate.objects.filter(Q(end_date__isnull=True) | Q(end_date__lte=today),
-                                              Q(start_date__gte=today), Q(removed_at__isnull=True)).first()
+                                              Q(start_date__gte=today), Q(removed_at__isnull=True))[0]
 
     def get(self, request):
         return render(request, self.template_name, {'form': self.form(), 'current_key_rate': self.current_key_rate,

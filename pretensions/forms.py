@@ -1,6 +1,4 @@
 from django import forms
-
-from specialist.models import Specialist
 from .models import Pretension
 
 

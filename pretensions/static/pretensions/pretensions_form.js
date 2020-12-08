@@ -47,18 +47,18 @@ $(document).ready(function () {
         $('#student_fio').hide();
     } else {
         $('#id_student_last_name').prop('required', true);
-        $('#student_first_name').prop('required', true);
+        $('#id_student_first_name').prop('required', true);
     }
 
     checkbox_is_buyer_student_same.change(function () {
         if (this.checked) {
             $('#student_fio').hide();
             $('#id_student_last_name').removeAttr('required');
-            $('#student_first_name').removeAttr('required');
+            $('#id_student_first_name').removeAttr('required');
         } else {
             $('#student_fio').show();
             $('#id_student_last_name').prop('required', true);
-            $('#student_first_name').prop('required', true);
+            $('#id_student_first_name').prop('required', true);
         }
     });
 

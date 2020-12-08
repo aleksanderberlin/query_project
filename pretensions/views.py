@@ -29,12 +29,24 @@ def case_fio(case, gender, first_name=None, second_name=None, last_name=None, re
         return ' '.join(filter(None, (last_name, first_name, second_name)))
 
 
-def make_non_breaking_spaces(string):
-    splitted_strings = string.split(', ')
-    non_breaking_strings = []
-    for string in splitted_strings:
-        non_breaking_strings.append(string.replace(' ', '&#160;', 1))
-    return ', '.join(non_breaking_strings)
+def make_no_break_space(string):
+    split_strings = string.split(', ')
+    no_break_space_str = []
+    for string in split_strings:
+        no_break_space_str.append(string.replace(' ', '&#160;', 1))
+    return ', '.join(no_break_space_str)
+
+
+# def make_no_break_hyphen(string):
+#     split_strings = string.split(', ')
+#     no_break_hyphen_str = []
+#     for string in split_strings:
+#         if len(string.split(' ')) > 1:
+#             no_break_hyphen_str.append(' '.join([string.split(' ')[0].replace('-', u"\u2011", 1),
+#                                                  string.split(' ', 1)[1]]))
+#         else:
+#             no_break_hyphen_str.append(string.replace('-', u"\u2011", 1))
+#     return ', '.join(no_break_hyphen_str)
 
 
 class PretensionsFormView(View):
@@ -77,7 +89,7 @@ class PretensionsFormView(View):
                     education_who = ' '.join(filter(None, (cleaned_data['student_last_name'],
                                                            cleaned_data['student_first_name'],
                                                            cleaned_data['student_second_name']))) + \
-                                    ' был отчислен' if student_sex == Gender.MALE else ' была отчислена'
+                                    (' был отчислен' if student_sex == Gender.MALE else ' была отчислена')
 
                 # OTCH REASON
                 if cleaned_data['otch_reason'] == 'initiative':
@@ -104,8 +116,8 @@ class PretensionsFormView(View):
                 doc = DocxTemplate(os.path.join(os.path.dirname(__file__),
                                                 "docx_templates/Template_pretension_2020_12_07.docx"))
                 context = {'name_to': pretension_to_who,
-                           'address_first_line': make_non_breaking_spaces(cleaned_data['address_first_line']),
-                           'address_second_line': make_non_breaking_spaces(cleaned_data['address_second_line']),
+                           'address_first_line': make_no_break_space(cleaned_data['address_first_line']),
+                           'address_second_line': make_no_break_space(cleaned_data['address_second_line']),
                            'postal_code': cleaned_data['postal_code'], 'hello_prefix': hello_prefix,
                            'buyer_io': ' '.join(filter(None, (cleaned_data['buyer_first_name'],
                                                               cleaned_data['buyer_second_name']))),
@@ -148,7 +160,7 @@ class PretensionsFormView(View):
                 # DOC RENDER AND SAVE
                 doc.render(context)
                 doc_filename = cleaned_data['buyer_last_name'] + '_' + cleaned_data['buyer_first_name'][0] + \
-                               (cleaned_data['buyer_second_name'][0] if cleaned_data['buyer_second_name'][0] else '')
+                               (cleaned_data['buyer_second_name'][0] if cleaned_data['buyer_second_name'] else '')
                 if not cleaned_data['is_buyer_student_same']:
                     doc_filename += '_' + cleaned_data['student_last_name'] + '_' + \
                                     cleaned_data['student_first_name'][0] + (cleaned_data['student_second_name'][0]

@@ -147,7 +147,8 @@ class PretensionsFormView(View):
                                     'whole_debt_sum_with_penalties_string':
                                         str(num2words(int(cleaned_data['debt_sum'] + penalties), lang='ru')),
                                     'frac_debt_sum_with_penalties':
-                                        int("{:.2f}".format(cleaned_data['debt_sum'] + penalties).split('.')[1])})
+                                        str(int("{:.2f}".format(cleaned_data['debt_sum'] +
+                                                                penalties).split('.')[1])).zfill(2)})
 
                 # PERFORMER AND DIRECTOR SIGNATURE
                 context.update({'performer_fio': cleaned_data['performer'].__str__(),
